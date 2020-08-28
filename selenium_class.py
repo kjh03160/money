@@ -7,7 +7,8 @@ from selenium.webdriver.common.by import By
 class Driver:
     def __init__(self):
         options = webdriver.ChromeOptions()
-        options.add_argument('headless')
+        # options.add_argument('headless')
+        # options.add_argument('--start-fullscreen')
         options.add_argument(
             "user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36")
 
@@ -53,7 +54,10 @@ class Driver:
         return WebDriverWait(self.driver, 10).until(
                         EC.presence_of_element_located(
                             (By.XPATH, xpath)))
-
+    def find_by_name(self, name): # name로 단일 요소 찾기
+        return WebDriverWait(self.driver, 10).until(
+                        EC.presence_of_element_located(
+                            (By.NAME, name)))
     def find_by_class(self, class_name): # class name으로 단일 요소 찾기
         return WebDriverWait(self.driver, 10).until(
                         EC.presence_of_element_located(
@@ -74,10 +78,6 @@ class Driver:
             EC.presence_of_element_located(
                 (By.CSS_SELECTOR, css)))
 
-    def find_by_name(self, name): # name으로 단일 요소 찾기
-        return WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located(
-                (By.NAME, name)))
 
     def find_all_by_class(self, class_name): # class name으로 모든 요소 찾기
         return WebDriverWait(self.driver, 10).until(
@@ -104,6 +104,11 @@ class Driver:
             EC.presence_of_all_elements_located(
                 (By.TAG_NAME, name)))
 
+    def find_all_by_css_with_obj(self, obj, css):
+        return WebDriverWait(obj, 20).until(
+            EC.presence_of_all_elements_located(
+                (By.CSS_SELECTOR, css)))
+
     def find_by_tag_with_obj(self, obj, name): # name으로 요소 찾기
         return WebDriverWait(obj, 20).until(
             EC.presence_of_element_located(
@@ -129,6 +134,13 @@ class Driver:
         return WebDriverWait(self.driver, 10).until(
             EC.presence_of_element_located(
                 (By.LINK_TEXT, text)))
+
+
+    def find_by_link_with_obj(self, obj, text):
+        return WebDriverWait(obj, 10).until(
+            EC.presence_of_element_located(
+                (By.LINK_TEXT, text)))
+
 
     def click(self, btn):
         self.driver.execute_script("arguments[0].click();", btn)

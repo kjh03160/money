@@ -3,9 +3,10 @@ import json
 
 
 def to_csv(date):
-    with open('data/' + date + '.json', 'r', encoding='UTF-8')as file:
+    with open('data/baemin/' + date + '.json', 'r', encoding='UTF-8')as file:
         x = json.load(file)
-
+    if len(x) == 0:
+        return
     df = pd.DataFrame(x)
 
     cols = ['orderNo',
@@ -88,4 +89,4 @@ def to_csv(date):
 
     df.to_csv('누적데이터.csv', index=False, mode='w', encoding='utf-8-sig')
 
-    os.startfile('누적데이터.csv')
+    # os.startfile('누적데이터.csv')

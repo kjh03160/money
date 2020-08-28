@@ -2,69 +2,87 @@ from selenium_class import Driver
 import time
 from urllib import parse
 
-def main():
-    date = input("날짜를 입력해주세요(형식 : 2020-00-00) : ")
-    while len(date) != len("2020-00-00") or date[4] != "-" or date[7] != "-":
-        print("날짜 형식을 다시 확인해주세요!")
-        date = input("날짜를 입력해주세요(형식 : 2020-00-00) : ")
-
+def main(dates):
     driver = Driver()
-
-
-    driver.get_url("https://ceo.baemin.com/self-service/orders/history")
-
     driver.driver.implicitly_wait(10)
+    #
+    # while len(date) != len("2020-00-00") or date[4] != "-" or date[7] != "-":
+    #     print("날짜 형식을 다시 확인해주세요!")
+    #     date = input("날짜를 입력해주세요(형식 : 2020-00-00) : ")
+    for i in range(len(dates)):
+        date = dates[i]
+        driver.get_url("https://ceo.baemin.com/self-service/orders/history")
 
-    id = driver.find_by_id("id")
-    id.send_keys("sudaje1")
+        if i == 0:
+            id = driver.find_by_id("id")
+            id.send_keys("sudaje1")
 
-    pw = driver.find_by_id("pw")
-    pw.send_keys("sujung4710!!")
+            pw = driver.find_by_id("pw")
+            pw.send_keys("sujung4710!!")
 
-    login = driver.find_by_id("btnLogin")
-    driver.click(login)
+            login = driver.find_by_id("btnLogin")
+            driver.click(login)
 
-    time.sleep(1)
-    url = "https://ceo.baemin.com/v1/orders?__ts=1598455546716&sort=ORDER_DATETIME&shopNo=&adInventoryKey=&purchaseType=&orderStatus=CLOSED&startDate={start}&endDate={end}&offset=0&limit={limit}&token="
-    url = url.format(start = date, end = date, limit=1000)
-    driver.get_url(url)
-    pre = driver.find_by_tag("pre").text
+        time.sleep(2)
 
-    with open('data/dummy.json', 'w', encoding='UTF-8')as file:
-        file.write(pre)
+        from baemin import baemin
+        from result_df import to_csv
+        driver = baemin(driver, date)
+        if not driver:
+            return print("요청이 너무 많아 차단되었습니다. 잠시 후 다시 시도해주세요")
+        try:
+            to_csv(date)
+        except FileNotFoundError:
+            pass
 
 
-    import json
-    import pandas as pd
-    with open('data/dummy.json', 'r', encoding='UTF-8')as file:
-        x = json.load(file)['data']['histories']
-        if len(x) == 0:
-            print("주문 내역이 없습니다.")
-            return
+        # from graph import graph
+        # graph()
+        if i  == 0:
+            login_url = "https://ceo.nowwaiting.co/order_sales/history"
+            driver.get_url(login_url)
 
-    df = pd.DataFrame(x)
-    orders = list(df['orderNo'])
+            id_box = driver.find_by_id("email")
+            id_box.send_keys("2753034@naver.com")
 
-    urls  = ["https://ceo.baemin.com/v1/orders/"+  id + "?__ts=1598459367645" for id in orders]
+            pw_box = driver.find_by_id("password")
+            pw_box.send_keys("@@a1s2d3f4\n")
+        time.sleep(2)
 
-    time.sleep(1)
-    with open('data/' + date + '.json', 'w', encoding='UTF-8') as file:
-        temp = []
-        for i in urls:
-            driver.get_url(parse.unquote(i))
-            pre = driver.find_by_tag("pre").text
-            temp.append(json.loads(pre)['data'])
-        file.write(json.dumps(temp))
+        from now_waiting import now_waiting
+        driver = now_waiting(driver, date)
+
+
+        time.sleep(1)
+
+        url = "https://web.albamapp.com/today"
+        driver.get_url(url)
+        if i == 0:
+            id_box = driver.find_by_name("account")
+            id_box.send_keys("01068863034")
+
+            pw_box = driver.find_by_name("userPassword")
+            pw_box.send_keys("@@a1s2d3f4")
+
+            login_btn = driver.find_by_css("button.LoginButton")
+            driver.click(login_btn)
+
+        time.sleep(2)
+
+        navs = driver.find_by_css("ul.nav")
+        lis = driver.find_by_link_with_obj(navs, "근무기록")
+        driver.click(lis)
+
+        from albam import albam
+        driver = albam(driver, date)
+        print(date, "수집 완료")
 
     driver.close()
 
-    from result_df import to_csv
-    print("수집 완료")
-    print("csv 생성 중")
-    to_csv(date)
 
-    from graph import graph
-    graph()
 
 if __name__ == '__main__':
-    main()
+    # date = input("날짜를 입력해주세요(형식 : 2020-00-00) : ")
+    date = ['2020-08-23',
+            '2020-08-24', '2020-08-25', '2020-08-26', '2020-08-27']
+    main(date)
