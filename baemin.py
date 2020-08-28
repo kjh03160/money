@@ -22,6 +22,9 @@ def baemin(driver, date):
         x = json.load(file)['data']['histories']
         if len(x) == 0:
             print("주문 내역이 없습니다.")
+            with open('data/baemin/' + date + '.json', 'w', encoding='UTF-8') as file2:
+                temp = []
+                file2.write(json.dumps(temp))
 
         else:
             df = pd.DataFrame(x)
