@@ -10,9 +10,9 @@ def baemin_7(driver, date):
 
     nav = driver.find_all_by_css("nav.Paging ul li")[7]
     result = []
+    flag = False
 
     while not nav.get_attribute("disabled"):
-        flag = False
         time.sleep(0.5)
         nav = driver.find_all_by_css("nav.Paging ul li a")[7]
 
@@ -50,7 +50,8 @@ def baemin_7(driver, date):
             for tr in trs:
                 if tr.get_attribute('class'):
                     if '드레싱' in tr.text:
-                        temp['드레싱'].append(tr.text.strip().split()[1])
+                        if 'X' not in tr.text:
+                            temp['드레싱'].append(tr.text.strip().split()[1])
                     elif '추가' in tr.text:
                         temp['추가선택'].append((tr.text.strip().split(" 추가")[0][2:]))
                 else:
@@ -69,7 +70,7 @@ def baemin_7(driver, date):
             temp['배달팁'] = int(driver.find_by_css_with_obj(footer[0], "td.text-right").text.split()[0].replace(",", ""))
             temp['결제금액'] = int(driver.find_by_css_with_obj(footer[1], "td.text-right").text.split()[0].replace(",", ""))
 
-            temp['주문번호'] = driver.find_all_by_css("div.order-detail-orderNo").text.split()[1]
+            temp['주문번호'] = driver.find_by_css("div.order-detail-orderNo").text.split()[1]
             temp['주문금액'] = temp['결제금액'] - temp['배달팁']
 
             temp['드레싱'] = ", ".join(temp['드레싱'])
@@ -81,7 +82,8 @@ def baemin_7(driver, date):
             driver.click(close)
 
 
-
+        if flag:
+            break
         driver.click(nav)
 
 
