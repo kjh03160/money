@@ -16,22 +16,21 @@ def to_csv(date):
             'serviceType',
             'orderAmount',
             'charge',
-            'payAmount',
             'orderDatetime',
             'acceptDatetime',
            'arriveDatetime',
              'orderer',
-            'memo']
+            'memo',
+            'memos']
 
     df = df[cols]
 
     df.rename(columns = {
         'orderNo' : '주문번호', 'serviceType' : '서비스타입',
-        'deliveryType' : "수령방법", 'purchaseType' : '결제방법',
-        'payAmount' : '결제금액', 'orderAmount' : '주문금액',
+        'deliveryType' : "수령방법", 'purchaseType' : '결제방법', 'orderAmount' : '주문금액',
             'orderDatetime' : "주문시각", 'acceptDatetime' : "접수시각",
            'arriveDatetime' : "배달시각", 'charge' : "배달팁", 'items' : "항목",
-     'orderer' : "주소", 'memo' : '요청사항'}, inplace = True)
+     'orderer' : "주소", 'memo' : '요청사항', 'memos' : '배달요청사항'}, inplace = True)
 
     df.loc[df['서비스타입'] == "BAEMIN", "서비스타입"] = "배민"
     df.loc[df['수령방법'] == "DELIVERY", "수령방법"] = "배달"
@@ -44,9 +43,12 @@ def to_csv(date):
         df.iloc[i, 6] = df.iloc[i]['배달팁']['deliveryTip']
 
     for i in range(n):
-        df.iloc[i, 11] = df.iloc[i]['주소']['streetAddress']
+        df.iloc[i, 10] = df.iloc[i]['주소']['streetAddress']
     for i in range(n):
-        df.iloc[i, 12] = ''.join(df.iloc[i]['요청사항']['delivery'])
+        df.iloc[i, 11] = ''.join(df.iloc[i]['요청사항']['delivery'])
+
+    for i in range(n):
+        df.iloc[i, 12] = df.iloc[i]['배달요청사항'][0]['memo']
 
     for i in range(n):
         items = []
@@ -75,8 +77,10 @@ def to_csv(date):
         df.loc[i, '추가선택'] = ', '.join(extra)
         df.loc[i, '드레싱'] = ', '.join(dr)
 
+    df['결제금액'] = df['주문금액'] + df['배달팁']
+
     cols = [ '주문번호', '수령방법', '결제방법', '항목', '추가선택', '드레싱', '서비스타입', '주문금액', '배달팁', '결제금액', '주문시각',
-           '접수시각', '배달시각', '주소', '요청사항']
+           '접수시각', '배달시각', '주소', '요청사항', '배달요청사항']
     df = df[cols]
     import os
 

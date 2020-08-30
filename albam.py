@@ -58,19 +58,26 @@ def albam(driver, date):
         rows = driver.find_all_by_css_with_obj(container, "div.ag-row-position-absolute")
         for i in rows:
             username = driver.find_by_css_with_obj(i, "div[col-id=username]").text.strip()
-            total_time = driver.find_by_css_with_obj(i, "div[col-id=\'5\']").text.strip()
-            wage = driver.find_by_css_with_obj(i, "div[col-id=\'0\']").text.strip()
-            total_money = driver.find_by_css_with_obj(i, "div[col-id=\'12\']").text.strip()
+            total_time_work = driver.find_by_css_with_obj(i, "div[col-id=\'5\']").text.strip().split('\n')
+            work_time = total_time_work[0]
+
+            total_wage = 0
+            if total_time_work[1] != "(-)":
+                total_wage = int(total_time_work[1][:-1].replace(",", ""))
+
+            wage = int(driver.find_by_css_with_obj(i, "div[col-id=\'0\']").text.strip().split('\n')[1][:-1].replace(",", ""))
+            weekend = int(driver.find_by_css_with_obj(i, "div[col-id=\'10\']").text.strip()[:-1].replace(",", ""))
+            total_money = total_wage + weekend
 
 
-            result.append([username, wage, total_time, total_money])
+            result.append([username, wage, work_time, total_wage, weekend, total_money])
         next_btn = driver.find_by_css("button[ref=btNext]")
         if next_btn.get_attribute("disabled"):
             break
         driver.click(next_btn)
 
 
-    labels = ['이름', '시급', '연장근무', '야간근무', '휴일근무', '근무인정시간', '총급여']
+    labels = ['이름', '시급', '근무인정시간', '기본급여', '주휴수당', '총급여']
     df = pd.DataFrame(result, columns=labels)
     df.to_csv('data/albam/' + date + '.csv', index=False, mode='w', encoding='utf-8-sig')
 

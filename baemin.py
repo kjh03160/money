@@ -3,7 +3,7 @@ import json
 import pandas as pd
 
 def baemin(driver, date):
-    driver.get_url("https://ceo.baemin.com/self-service/orders/history")
+    # driver.get_url("https://ceo.baemin.com/self-service/orders/history")
     if  driver.driver.title == "ERROR: The request could not be satisfied":
         return False
 
@@ -21,7 +21,7 @@ def baemin(driver, date):
     with open('data/dummy.json', 'r', encoding='UTF-8')as file:
         x = json.load(file)['data']['histories']
         if len(x) == 0:
-            print("주문 내역이 없습니다.")
+            print(date, "배민 주문 내역이 없습니다.")
             with open('data/baemin/' + date + '.json', 'w', encoding='UTF-8') as file2:
                 temp = []
                 file2.write(json.dumps(temp))
