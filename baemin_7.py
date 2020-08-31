@@ -92,8 +92,8 @@ def baemin_7(driver, date):
     df = pd.DataFrame(result)
     df.to_csv("data/baemin/" + date + '.csv', encoding='utf-8-sig', index=False)
 
-    if os.path.isfile('누적데이터.csv'):
-        prev = pd.read_csv('누적데이터.csv')
+    if os.path.isfile('배민누적데이터.csv'):
+        prev = pd.read_csv('배민누적데이터.csv')
         filter1 = prev['주문시각'].str.contains(date)
         filter2 = prev['서비스타입'] == "배민"
         dup = prev[filter1 & filter2].index
@@ -101,5 +101,5 @@ def baemin_7(driver, date):
         df = pd.concat([prev, df], sort=False)
     df = df.sort_values(by=['주문시각'])
 
-    df.to_csv('누적데이터.csv', index=False, mode='w', encoding='utf-8-sig')
+    df.to_csv('배민누적데이터.csv', index=False, mode='w', encoding='utf-8-sig')
     return driver

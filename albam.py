@@ -2,6 +2,7 @@ from selenium_class import Driver
 import datetime
 import pandas as pd
 import  time
+
 def albam(driver, date):
 
     url = "https://web.albamapp.com/today"
@@ -54,8 +55,14 @@ def albam(driver, date):
             df = pd.DataFrame(result, columns=labels)
             df.to_csv('data/albam/' + date + '.csv', index=False, mode='w', encoding='utf-8-sig')
             return driver
+        try:
+            rows = driver.find_all_by_css_with_obj(container, "div.ag-row-position-absolute")
+        except:
+            labels = ['이름', '시급', '연장근무', '야간근무', '휴일근무', '근무인정시간', '총급여']
+            df = pd.DataFrame(result, columns=labels)
+            df.to_csv('data/albam/' + date + '.csv', index=False, mode='w', encoding='utf-8-sig')
+            return driver
 
-        rows = driver.find_all_by_css_with_obj(container, "div.ag-row-position-absolute")
         for i in rows:
             username = driver.find_by_css_with_obj(i, "div[col-id=username]").text.strip()
             total_time_work = driver.find_by_css_with_obj(i, "div[col-id=\'5\']").text.strip().split('\n')

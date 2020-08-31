@@ -34,6 +34,7 @@ def to_csv(date):
 
     df.loc[df['서비스타입'] == "BAEMIN", "서비스타입"] = "배민"
     df.loc[df['수령방법'] == "DELIVERY", "수령방법"] = "배달"
+    df.loc[df['수령방법'] == "TAKEOUT", "수령방법"] = "포장"
     df.loc[df['결제방법'] == "BARO", "결제방법"] = "바로결제"
     df.loc[df['결제방법'] == "MEET", "결제방법"] = "만나서결제"
 
@@ -48,7 +49,8 @@ def to_csv(date):
         df.iloc[i, 11] = ''.join(df.iloc[i]['요청사항']['delivery'])
 
     for i in range(n):
-        df.iloc[i, 12] = df.iloc[i]['배달요청사항'][0]['memo']
+        if len(df.iloc[i]['배달요청사항']):
+            df.iloc[i, 12] = df.iloc[i]['배달요청사항'][0]['memo']
 
     for i in range(n):
         items = []
@@ -84,13 +86,32 @@ def to_csv(date):
     df = df[cols]
     import os
 
-    if os.path.isfile('누적데이터.csv'):
-        prev = pd.read_csv('누적데이터.csv')
+    if os.path.isfile('배민누적데이터.csv'):
+        prev = pd.read_csv('배민누적데이터.csv')
         dup = prev[prev['주문시각'].str.contains(date)].index
         prev = prev.drop(dup)
         df = pd.concat([prev, df], sort=False)
     df = df.sort_values(by=['주문시각'])
 
-    df.to_csv('누적데이터.csv', index=False, mode='w', encoding='utf-8-sig')
+    df.to_csv('배민누적데이터.csv', index=False, mode='w', encoding='utf-8-sig')
 
     # os.startfile('누적데이터.csv')
+
+
+
+"""
+    path = './data/baemin/'
+    files = glob.glob(path + "/*.json")
+    li = []
+    print(files)
+
+    for file in files:
+        with open(file, 'r', encoding='utf-8-sig') as file:
+            x = json.load(file)
+            if len(x) == 0:
+                continue
+            df = pd.DataFrame(x)
+            li.append(df)
+
+    df = pd.concat(li, axis=0, ignore_index=True)
+    """

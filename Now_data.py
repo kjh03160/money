@@ -75,4 +75,4 @@ df['배달시각'] = '-'
 df['배달요청사항'] = '-'
 df = df[target_cols]
 
-with open('./누적데이터.csv', 'a') as old_file: df.to_csv('./new데이터.csv', index=False, encoding='utf-8-sig')
+with open('./누적데이터.csv', 'a') as old_file: df.to_csv('./전체_데이터.csv', index=False, encoding='utf-8-sig')

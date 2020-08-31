@@ -5,7 +5,6 @@ import datetime
 def main(dates):
     driver = Driver()
     driver.driver.implicitly_wait(10)
-
     for i in range(len(dates)):
         date = dates[i]
         driver.get_url("https://ceo.baemin.com/self-service/orders/history")
@@ -93,5 +92,14 @@ def main(dates):
 if __name__ == '__main__':
     # date = input("날짜를 입력해주세요(형식 : 2020-00-00) : ")
     # JSONDecodeError
-    date = ['2020-08-24','2020-08-25','2020-08-26','2020-08-27']
-    main(date)
+    import datetime
+    date = []
+    x = datetime.datetime(2020, 8, 25)
+    t = x + datetime.timedelta(days=1)
+    while t.strftime('%Y-%m-%d') != "2020-08-31":
+        date.append(t.strftime('%Y-%m-%d'))
+        t = t + datetime.timedelta(days=1)
+    try:
+        main(date)
+    except Exception as e:
+        print(e)
