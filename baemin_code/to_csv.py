@@ -3,7 +3,7 @@ import json
 
 
 def to_csv(date):
-    with open('data/baemin/' + date + '.json', 'r', encoding='UTF-8')as file:
+    with open('../data/baemin/' + date + '.json', 'r', encoding='UTF-8')as file:
         x = json.load(file)
     if len(x) == 0:
         return
@@ -86,16 +86,15 @@ def to_csv(date):
     df = df[cols]
     import os
 
-    if os.path.isfile('배민누적데이터.csv'):
-        prev = pd.read_csv('배민누적데이터.csv')
+    if os.path.isfile('../data/baemin/배민누적데이터.csv'):
+        prev = pd.read_csv('../data/baemin/배민누적데이터.csv')
         dup = prev[prev['주문시각'].str.contains(date)].index
         prev = prev.drop(dup)
         df = pd.concat([prev, df], sort=False)
     df = df.sort_values(by=['주문시각'])
 
-    df.to_csv('배민누적데이터.csv', index=False, mode='w', encoding='utf-8-sig')
+    df.to_csv('../data/baemin/배민누적데이터.csv', index=False, mode='w', encoding='utf-8-sig')
 
-    # os.startfile('누적데이터.csv')
 
 
 

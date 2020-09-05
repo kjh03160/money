@@ -2,7 +2,7 @@ import pandas as pd
 import glob
 import json
 
-path = './data/now_waiting/'
+path = '../data/now_waiting/'
 files = glob.glob(path + "/*.json")
 li = []
 
@@ -14,13 +14,13 @@ for file in files:
 
 now_waiting = pd.concat(li, axis=0, ignore_index=True)
 
-target = pd.read_csv('./누적데이터.csv')
+target = pd.read_csv('../data/baemin/배민누적데이터.csv')
 
 cols = ['id','serving_type', 'amount', 'amount_to_pay', 'user_comment']
 df = now_waiting[cols]
 df = df.rename(columns={'id':'주문번호',
-                                 'source_type':'결제방법',
-                                 'serving_type': '서비스타입',
+                                 'source_type':'서비스타입',
+                                 'serving_type': '결제방법',
                                  'amount':'주문금액',
                                  'amount_to_pay':'결제금액',
                                  'user_comment':'요청사항'})
@@ -69,10 +69,12 @@ df[['주문시각']] = now_waiting.apply(lambda row: pd.Series(get_timestamps(ro
 target_cols = target.columns
 df['주소'] = 'X'
 df['배달팁'] = 0
-df['결제방법'] = '나우웨이팅 POS'
+df['서비스타입'] = '나우웨이팅 POS'
 df['접수시각'] = '-'
 df['배달시각'] = '-'
 df['배달요청사항'] = '-'
 df = df[target_cols]
+df = pd.concat([df, target], sort=False)
+df = df.sort_values(by=['주문시각'])
 
-with open('./누적데이터.csv', 'a') as old_file: df.to_csv('./전체_데이터.csv', index=False, encoding='utf-8-sig')
+with open('../data/baemin/배민누적데이터.csv', 'a') as old_file: df.to_csv('./data/전체_데이터.csv', index=False, encoding='utf-8-sig')

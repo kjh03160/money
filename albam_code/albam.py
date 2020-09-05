@@ -9,7 +9,7 @@ def albam(driver, date):
     driver.get_url(url)
 
     navs = driver.find_by_css("ul.nav")
-    lis = driver.find_by_link_with_obj(navs, "급여")
+    lis = driver.find_by_link_with_obj(navs, "근무기록")
     driver.click(lis)
 
     time.sleep(0.5)
@@ -65,7 +65,7 @@ def albam(driver, date):
 
         for i in rows:
             username = driver.find_by_css_with_obj(i, "div[col-id=username]").text.strip()
-            total_time_work = driver.find_by_css_with_obj(i, "div[col-id=\'5\']").text.strip().split('\n')
+            total_time_work = driver.find_by_css_with_obj(i, "div[col-id=totalTime]").text.strip().split('\n')
             work_time = total_time_work[0]
 
             total_wage = 0
@@ -86,7 +86,7 @@ def albam(driver, date):
 
     labels = ['이름', '시급', '근무인정시간', '기본급여', '주휴수당', '총급여']
     df = pd.DataFrame(result, columns=labels)
-    df.to_csv('data/albam/' + date + '.csv', index=False, mode='w', encoding='utf-8-sig')
+    df.to_csv('../data/albam/' + date + '.csv', index=False, mode='w', encoding='utf-8-sig')
 
     return driver
 
