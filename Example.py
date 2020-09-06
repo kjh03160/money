@@ -8,11 +8,16 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import *
-from main import main
 from PyQt5.QtCore import *
 import sys
+from PyQt5.QtCore import QAbstractTableModel, Qt
+from selenium_class import Driver
+from baemin_code.baemin_main import baemin_main
+from nowdata_code.now_waiting_main import now_waiting_main
+from albam_code.albam_main import albam_main
 import datetime
-
+import pandas as pd
+import time
 
 class TestThread(QThread):
     # 쓰레드의 커스텀 이벤트
@@ -21,20 +26,68 @@ class TestThread(QThread):
 
     def __init__(self, parent=None):
         super().__init__()
-        self.n = 0
+        self.dates = []
         self.main = parent
         self.isRun = False
+        self.driver = None
 
     def run(self):
-        while self.isRun:
-            print('쓰레드 : ' + str(self.n))
+        self.driver = Driver()
+        driver = self.driver
+        driver.driver.implicitly_wait(10)
+        self.main.start_Crawl.setEnabled(True)
+        for i in range(len(self.dates)):
+            date = self.dates[i]
+            self.main.baemin.setText(date + " 수집 중...")
+            self.main.now_waiting.setText(date + " 수집 중...")
+            # 배민 수집
+            try:
+                driver = baemin_main(driver, date, i)
+                if driver is None:
+                    raise Exception
+            except Exception as err:
+                x = QMessageBox()
+                self.main.center()
+                x.about(self.main, "오류", "배민 request 거부.\n잠시 후 다시 시도해주세요")
+                self.main.baemin.setText(date + " 부터 다시 시작해주세요.")
+                self.main.now_waiting.setText(date + " 부터 다시 시작해주세요.")
+                break
 
-            # 'threadEvent' 이벤트 발생
-            # 파라미터 전달 가능(객체도 가능)
-            self.threadEvent.emit(self.n)
+            # 나우 웨이팅 수집
+            driver = now_waiting_main(driver, date, i)
+            self.threadEvent.emit(str(date))
 
-            self.n += 1
-            self.sleep(1)
+            time.sleep(1)
+            print('쓰레드 : ' + str(date))
+            # driver = albam_main(driver, date, i)
+            print(date, "수집 완료")
+
+        driver.close()
+        self.main.start_Crawl.setText("시작")
+        self.isRun = False
+
+
+class pandasModel(QAbstractTableModel):
+    def __init__(self, data):
+        QAbstractTableModel.__init__(self)
+        self._data = data
+
+    def rowCount(self, parent=None):
+        return self._data.shape[0]
+
+    def columnCount(self, parnet=None):
+        return self._data.shape[1]
+
+    def data(self, index, role=Qt.DisplayRole):
+        if index.isValid():
+            if role == Qt.DisplayRole:
+                return str(self._data.iloc[index.row(), index.column()])
+        return None
+
+    def headerData(self, col, orientation, role):
+        if orientation == Qt.Horizontal and role == Qt.DisplayRole:
+            return self._data.columns[col]
+        return None
 
 class Ui_MainWindow(QMainWindow):
 
@@ -45,11 +98,19 @@ class Ui_MainWindow(QMainWindow):
         self.centralwidget.setObjectName("centralwidget")
         self.tabWidget = QtWidgets.QTabWidget(self.centralwidget)
         self.tabWidget.setGeometry(QtCore.QRect(0, 0, 1121, 501))
+
+        font = QtGui.QFont()
+        font.setFamily("양재인장체M")
+        font.setPointSize(10)
+        font.setBold(False)
+        font.setWeight(50)
+        self.tabWidget.setFont(font)
+
         self.tabWidget.setObjectName("tabWidget")
         self.tab_1 = QtWidgets.QWidget()
         self.tab_1.setObjectName("tab_1")
         self.gridLayoutWidget = QtWidgets.QWidget(self.tab_1)
-        self.gridLayoutWidget.setGeometry(QtCore.QRect(220, 20, 871, 191))
+        self.gridLayoutWidget.setGeometry(QtCore.QRect(230, 20, 841, 121))
         self.gridLayoutWidget.setObjectName("gridLayoutWidget")
         self.gridLayout = QtWidgets.QGridLayout(self.gridLayoutWidget)
         self.gridLayout.setSizeConstraint(QtWidgets.QLayout.SetDefaultConstraint)
@@ -72,59 +133,102 @@ class Ui_MainWindow(QMainWindow):
         self.start_date.setDate(QtCore.QDate(2020, 9, 1))
         self.start_date.setObjectName("start_date")
         self.gridLayout.addWidget(self.start_date, 0, 1, 1, 1)
-        self.label_2 = QtWidgets.QLabel(self.gridLayoutWidget)
-        self.label_2.setFrameShape(QtWidgets.QFrame.Box)
-        self.label_2.setAlignment(QtCore.Qt.AlignCenter)
-        self.label_2.setObjectName("label_2")
-        self.gridLayout.addWidget(self.label_2, 1, 0, 1, 1)
         self.label = QtWidgets.QLabel(self.gridLayoutWidget)
-        self.label.setFrameShape(QtWidgets.QFrame.Box)
-        self.label.setFrameShadow(QtWidgets.QFrame.Sunken)
+        font = QtGui.QFont()
+        font.setFamily("양재인장체M")
+        font.setPointSize(10)
+        font.setBold(False)
+        font.setWeight(50)
+        self.label.setFont(font)
+        # self.label.setFrameShape(QtWidgets.QFrame.Box)
+        # self.label.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.label.setAlignment(QtCore.Qt.AlignCenter)
         self.label.setObjectName("label")
         self.gridLayout.addWidget(self.label, 0, 0, 1, 1)
         self.end_date = QtWidgets.QDateEdit(self.gridLayoutWidget)
+        font = QtGui.QFont()
+        font.setFamily("양재인장체M")
+        font.setPointSize(10)
+        font.setBold(False)
+        font.setWeight(50)
+        self.end_date.setFont(font)
         self.end_date.setFrame(True)
         self.end_date.setAlignment(QtCore.Qt.AlignCenter)
         self.end_date.setCalendarPopup(True)
         self.end_date.setDate(QtCore.QDate(2020, 9, 1))
         self.end_date.setObjectName("end_date")
         self.gridLayout.addWidget(self.end_date, 0, 2, 1, 1)
+        self.label_2 = QtWidgets.QLabel(self.gridLayoutWidget)
+        font = QtGui.QFont()
+        font.setFamily("양재인장체M")
+        font.setPointSize(10)
+        font.setBold(False)
+        font.setWeight(50)
+        self.label_2.setFont(font)
+        # self.label_2.setFrameShape(QtWidgets.QFrame.Box)
+        self.label_2.setAlignment(QtCore.Qt.AlignCenter)
+        self.label_2.setObjectName("label_2")
+        self.gridLayout.addWidget(self.label_2, 1, 1, 1, 1)
         self.label_3 = QtWidgets.QLabel(self.gridLayoutWidget)
-        self.label_3.setFrameShape(QtWidgets.QFrame.Box)
+        font = QtGui.QFont()
+        font.setFamily("양재인장체M")
+        font.setPointSize(10)
+        font.setBold(False)
+        font.setWeight(50)
+        self.label_3.setFont(font)
+        # self.label_3.setFrameShape(QtWidgets.QFrame.Box)
         self.label_3.setAlignment(QtCore.Qt.AlignCenter)
         self.label_3.setObjectName("label_3")
-        self.gridLayout.addWidget(self.label_3, 2, 0, 1, 1)
-        self.label_4 = QtWidgets.QLabel(self.gridLayoutWidget)
-        self.label_4.setFrameShape(QtWidgets.QFrame.Box)
-        self.label_4.setAlignment(QtCore.Qt.AlignCenter)
-        self.label_4.setObjectName("label_4")
-        self.gridLayout.addWidget(self.label_4, 3, 0, 1, 1)
-        self.baemin = QtWidgets.QLabel(self.gridLayoutWidget)
-        self.baemin.setAlignment(QtCore.Qt.AlignCenter)
-        self.baemin.setObjectName("baemin")
-        self.gridLayout.addWidget(self.baemin, 1, 1, 1, 1)
+        self.gridLayout.addWidget(self.label_3, 1, 2, 1, 1)
         self.now_waiting = QtWidgets.QLabel(self.gridLayoutWidget)
+        font = QtGui.QFont()
+        font.setFamily("양재인장체M")
+        font.setPointSize(10)
+        font.setBold(False)
+        font.setWeight(50)
+        self.now_waiting.setFont(font)
+        self.now_waiting.setText("")
         self.now_waiting.setAlignment(QtCore.Qt.AlignCenter)
         self.now_waiting.setObjectName("now_waiting")
-        self.gridLayout.addWidget(self.now_waiting, 2, 1, 1, 1)
-        self.albam = QtWidgets.QLabel(self.gridLayoutWidget)
-        self.albam.setAlignment(QtCore.Qt.AlignCenter)
-        self.albam.setObjectName("albam")
-        self.gridLayout.addWidget(self.albam, 3, 1, 1, 1)
-
-
+        self.gridLayout.addWidget(self.now_waiting, 2, 2, 1, 1)
+        self.baemin = QtWidgets.QLabel(self.gridLayoutWidget)
+        font = QtGui.QFont()
+        font.setFamily("양재인장체M")
+        font.setPointSize(10)
+        font.setBold(False)
+        font.setWeight(50)
+        self.baemin.setFont(font)
+        self.baemin.setText("")
+        self.baemin.setAlignment(QtCore.Qt.AlignCenter)
+        self.baemin.setObjectName("baemin")
+        self.gridLayout.addWidget(self.baemin, 2, 1, 1, 1)
         self.file_upload = QtWidgets.QPushButton(self.tab_1)
-        self.file_upload.setGeometry(QtCore.QRect(810, 290, 261, 41))
+        self.file_upload.setGeometry(QtCore.QRect(830, 320, 261, 41))
+        font = QtGui.QFont()
+        font.setFamily("양재인장체M")
+        font.setPointSize(10)
+        font.setBold(False)
+        font.setWeight(50)
+        self.file_upload.setFont(font)
         self.file_upload.setObjectName("file_upload")
-
-
         self.upload = QtWidgets.QPushButton(self.tab_1)
-        self.upload.setGeometry(QtCore.QRect(990, 370, 61, 41))
+        self.upload.setGeometry(QtCore.QRect(970, 370, 121, 41))
+        font = QtGui.QFont()
+        font.setFamily("양재인장체M")
+        font.setPointSize(10)
+        font.setBold(False)
+        font.setWeight(50)
+        self.upload.setFont(font)
         self.upload.setObjectName("upload")
         self.label_5 = QtWidgets.QLabel(self.tab_1)
-        self.label_5.setGeometry(QtCore.QRect(20, 10, 191, 231))
+        self.label_5.setGeometry(QtCore.QRect(20, 20, 191, 121))
         self.label_5.setMaximumSize(QtCore.QSize(191, 231))
+        font = QtGui.QFont()
+        font.setFamily("양재인장체M")
+        font.setPointSize(10)
+        font.setBold(False)
+        font.setWeight(50)
+        self.label_5.setFont(font)
         self.label_5.setTextFormat(QtCore.Qt.RichText)
         self.label_5.setScaledContents(False)
         self.label_5.setAlignment(QtCore.Qt.AlignCenter)
@@ -132,134 +236,249 @@ class Ui_MainWindow(QMainWindow):
         self.label_5.setObjectName("label_5")
         self.line = QtWidgets.QFrame(self.tab_1)
         self.line.setGeometry(QtCore.QRect(0, 250, 1121, 16))
+        font = QtGui.QFont()
+        font.setFamily("양재인장체M")
+        font.setPointSize(10)
+        font.setBold(False)
+        font.setWeight(50)
+        self.line.setFont(font)
         self.line.setFrameShape(QtWidgets.QFrame.HLine)
         self.line.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.line.setObjectName("line")
+
+        self.line2 = QtWidgets.QFrame(self.tab_1)
+        self.line2.setGeometry(QtCore.QRect(0, 140, 1121, 10))
+        font = QtGui.QFont()
+        font.setFamily("양재인장체M")
+        font.setPointSize(10)
+        font.setBold(False)
+        font.setWeight(50)
+        self.line2.setFont(font)
+        self.line2.setFrameShape(QtWidgets.QFrame.HLine)
+        self.line2.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.line2.setObjectName("line2")
+
+        self.line3 = QtWidgets.QFrame(self.tab_1)
+        self.line3.setGeometry(QtCore.QRect(219, 0, 21, 501))
+        font = QtGui.QFont()
+        font.setFamily("양재인장체M")
+        font.setPointSize(10)
+        font.setBold(False)
+        font.setWeight(50)
+        self.line3.setFont(font)
+        self.line3.setFrameShape(QtWidgets.QFrame.VLine)
+        self.line3.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.line3.setObjectName("line3")
+
+
         self.label_6 = QtWidgets.QLabel(self.tab_1)
-        self.label_6.setGeometry(QtCore.QRect(30, 270, 191, 231))
+        self.label_6.setGeometry(QtCore.QRect(20, 260, 191, 231))
         self.label_6.setMaximumSize(QtCore.QSize(191, 231))
+        font = QtGui.QFont()
+        font.setFamily("양재인장체M")
+        font.setPointSize(10)
+        font.setBold(False)
+        font.setWeight(50)
+        self.label_6.setFont(font)
         self.label_6.setTextFormat(QtCore.Qt.RichText)
         self.label_6.setScaledContents(False)
         self.label_6.setAlignment(QtCore.Qt.AlignCenter)
         self.label_6.setWordWrap(False)
         self.label_6.setObjectName("label_6")
         self.listView = QtWidgets.QListWidget(self.tab_1)
-        self.listView.setGeometry(QtCore.QRect(230, 270, 561, 201))
+        self.listView.setGeometry(QtCore.QRect(240, 270, 561, 201))
+        font = QtGui.QFont()
+        font.setFamily("양재인장체M")
+        font.setPointSize(10)
+        font.setBold(False)
+        font.setWeight(50)
+        self.listView.setFont(font)
         self.listView.setObjectName("listView")
         self.delete_2 = QtWidgets.QPushButton(self.tab_1)
-        self.delete_2.setGeometry(QtCore.QRect(810, 370, 121, 41))
+        self.delete_2.setGeometry(QtCore.QRect(830, 370, 121, 41))
+        font = QtGui.QFont()
+        font.setFamily("양재인장체M")
+        font.setPointSize(10)
+        font.setBold(False)
+        font.setWeight(50)
+        self.delete_2.setFont(font)
         self.delete_2.setObjectName("delete_2")
-
-
+        self.label_4 = QtWidgets.QLabel(self.tab_1)
+        self.label_4.setGeometry(QtCore.QRect(10, 180, 212, 47))
+        font = QtGui.QFont()
+        font.setFamily("양재인장체M")
+        font.setPointSize(10)
+        font.setBold(False)
+        font.setWeight(50)
+        self.label_4.setFont(font)
+        # self.label_4.setFrameShape(QtWidgets.QFrame.Box)
+        self.label_4.setAlignment(QtCore.Qt.AlignCenter)
+        self.label_4.setObjectName("label_4")
+        self.albam_list = QtWidgets.QListWidget(self.tab_1)
+        self.albam_list.setGeometry(QtCore.QRect(240, 155, 561, 91))
+        font = QtGui.QFont()
+        font.setFamily("양재인장체M")
+        font.setPointSize(10)
+        font.setBold(False)
+        font.setWeight(50)
+        self.albam_list.setFont(font)
+        self.albam_list.setObjectName("albam_list")
+        self.albam_upload = QtWidgets.QPushButton(self.tab_1)
+        self.albam_upload.setGeometry(QtCore.QRect(830, 155, 261, 41))
+        font = QtGui.QFont()
+        font.setFamily("양재인장체M")
+        font.setPointSize(10)
+        font.setBold(False)
+        font.setWeight(50)
+        self.albam_upload.setFont(font)
+        self.albam_upload.setObjectName("albam_upload")
+        self.albam_upload_2 = QtWidgets.QPushButton(self.tab_1)
+        self.albam_upload_2.setGeometry(QtCore.QRect(970, 205, 121, 41))
+        font = QtGui.QFont()
+        font.setFamily("양재인장체M")
+        font.setPointSize(10)
+        font.setBold(False)
+        font.setWeight(50)
+        self.albam_upload_2.setFont(font)
+        self.albam_upload_2.setObjectName("albam_upload_2")
+        self.albam_delete = QtWidgets.QPushButton(self.tab_1)
+        self.albam_delete.setGeometry(QtCore.QRect(830, 205, 121, 41))
+        font = QtGui.QFont()
+        font.setFamily("양재인장체M")
+        font.setPointSize(10)
+        font.setBold(False)
+        font.setWeight(50)
+        self.albam_delete.setFont(font)
+        self.albam_delete.setObjectName("albam_delete")
         self.tabWidget.addTab(self.tab_1, "")
         self.tab_2 = QtWidgets.QWidget()
         self.tab_2.setObjectName("tab_2")
         self.gridLayoutWidget_2 = QtWidgets.QWidget(self.tab_2)
-        self.gridLayoutWidget_2.setGeometry(QtCore.QRect(20, 10, 401, 33))
+        self.gridLayoutWidget_2.setGeometry(QtCore.QRect(20, 10, 591, 33))
         self.gridLayoutWidget_2.setObjectName("gridLayoutWidget_2")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.gridLayoutWidget_2)
         self.gridLayout_2.setContentsMargins(0, 0, 0, 0)
         self.gridLayout_2.setObjectName("gridLayout_2")
-        self.dateEdit_3 = QtWidgets.QDateEdit(self.gridLayoutWidget_2)
-        self.dateEdit_3.setFocusPolicy(QtCore.Qt.NoFocus)
-        self.dateEdit_3.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
-        self.dateEdit_3.setWrapping(False)
-        self.dateEdit_3.setReadOnly(False)
-        self.dateEdit_3.setButtonSymbols(QtWidgets.QAbstractSpinBox.UpDownArrows)
-        self.dateEdit_3.setKeyboardTracking(True)
-        self.dateEdit_3.setDateTime(QtCore.QDateTime(QtCore.QDate(2020, 9, 1), QtCore.QTime(0, 0, 0)))
-        self.dateEdit_3.setCalendarPopup(True)
-        self.dateEdit_3.setDate(QtCore.QDate(2020, 9, 1))
-        self.dateEdit_3.setObjectName("dateEdit_3")
-        self.gridLayout_2.addWidget(self.dateEdit_3, 0, 1, 1, 1)
+        self.sales_start = QtWidgets.QDateEdit(self.gridLayoutWidget_2)
+        self.sales_start.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.sales_start.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.sales_start.setWrapping(False)
+        self.sales_start.setReadOnly(False)
+        self.sales_start.setButtonSymbols(QtWidgets.QAbstractSpinBox.UpDownArrows)
+        self.sales_start.setKeyboardTracking(True)
+        self.sales_start.setDateTime(QtCore.QDateTime(QtCore.QDate(2020, 9, 1), QtCore.QTime(0, 0, 0)))
+        self.sales_start.setCalendarPopup(True)
+        self.sales_start.setDate(QtCore.QDate(2020, 9, 1))
+        self.sales_start.setObjectName("sales_start")
+        self.gridLayout_2.addWidget(self.sales_start, 0, 1, 1, 1)
         self.label_7 = QtWidgets.QLabel(self.gridLayoutWidget_2)
+        self.label_7.setAlignment(QtCore.Qt.AlignCenter)
         self.label_7.setObjectName("label_7")
         self.gridLayout_2.addWidget(self.label_7, 0, 0, 1, 1)
-        self.pushButton_4 = QtWidgets.QPushButton(self.gridLayoutWidget_2)
-        self.pushButton_4.setObjectName("pushButton_4")
-        self.gridLayout_2.addWidget(self.pushButton_4, 0, 3, 1, 1)
-        self.dateEdit_4 = QtWidgets.QDateEdit(self.gridLayoutWidget_2)
-        self.dateEdit_4.setFocusPolicy(QtCore.Qt.NoFocus)
-        self.dateEdit_4.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
-        self.dateEdit_4.setWrapping(False)
-        self.dateEdit_4.setReadOnly(False)
-        self.dateEdit_4.setButtonSymbols(QtWidgets.QAbstractSpinBox.UpDownArrows)
-        self.dateEdit_4.setKeyboardTracking(True)
-        self.dateEdit_4.setDateTime(QtCore.QDateTime(QtCore.QDate(2020, 9, 1), QtCore.QTime(0, 0, 0)))
-        self.dateEdit_4.setCalendarPopup(True)
-        self.dateEdit_4.setDate(QtCore.QDate(2020, 9, 1))
-        self.dateEdit_4.setObjectName("dateEdit_4")
-        self.gridLayout_2.addWidget(self.dateEdit_4, 0, 2, 1, 1)
+        self.sales_statistic = QtWidgets.QPushButton(self.gridLayoutWidget_2)
+        self.sales_statistic.setObjectName("sales_statistic")
+        self.gridLayout_2.addWidget(self.sales_statistic, 0, 3, 1, 1)
+        self.sales_end = QtWidgets.QDateEdit(self.gridLayoutWidget_2)
+        self.sales_end.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.sales_end.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.sales_end.setWrapping(False)
+        self.sales_end.setReadOnly(False)
+        self.sales_end.setButtonSymbols(QtWidgets.QAbstractSpinBox.UpDownArrows)
+        self.sales_end.setKeyboardTracking(True)
+        self.sales_end.setDateTime(QtCore.QDateTime(QtCore.QDate(2020, 9, 1), QtCore.QTime(0, 0, 0)))
+        self.sales_end.setCalendarPopup(True)
+        self.sales_end.setDate(QtCore.QDate(2020, 9, 1))
+        self.sales_end.setObjectName("sales_end")
+        self.gridLayout_2.addWidget(self.sales_end, 0, 2, 1, 1)
         self.tableView = QtWidgets.QTableView(self.tab_2)
-        self.tableView.setGeometry(QtCore.QRect(20, 70, 1101, 651))
+        self.tableView.setGeometry(QtCore.QRect(20, 50, 1101, 421))
         self.tableView.setObjectName("tableView")
         self.tabWidget.addTab(self.tab_2, "")
         self.tab_3 = QtWidgets.QWidget()
         self.tab_3.setObjectName("tab_3")
+        self.tableView_2 = QtWidgets.QTableView(self.tab_3)
+        self.tableView_2.setGeometry(QtCore.QRect(20, 50, 1091, 421))
+        self.tableView_2.setObjectName("tableView_2")
         self.gridLayoutWidget_3 = QtWidgets.QWidget(self.tab_3)
-        self.gridLayoutWidget_3.setGeometry(QtCore.QRect(20, 10, 401, 33))
+        self.gridLayoutWidget_3.setGeometry(QtCore.QRect(20, 10, 591, 33))
         self.gridLayoutWidget_3.setObjectName("gridLayoutWidget_3")
         self.gridLayout_3 = QtWidgets.QGridLayout(self.gridLayoutWidget_3)
         self.gridLayout_3.setContentsMargins(0, 0, 0, 0)
         self.gridLayout_3.setObjectName("gridLayout_3")
-        self.dateEdit_5 = QtWidgets.QDateEdit(self.gridLayoutWidget_3)
-        self.dateEdit_5.setFocusPolicy(QtCore.Qt.NoFocus)
-        self.dateEdit_5.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
-        self.dateEdit_5.setWrapping(False)
-        self.dateEdit_5.setReadOnly(False)
-        self.dateEdit_5.setButtonSymbols(QtWidgets.QAbstractSpinBox.UpDownArrows)
-        self.dateEdit_5.setKeyboardTracking(True)
-        self.dateEdit_5.setDateTime(QtCore.QDateTime(QtCore.QDate(2020, 9, 1), QtCore.QTime(0, 0, 0)))
-        self.dateEdit_5.setCalendarPopup(True)
-        self.dateEdit_5.setDate(QtCore.QDate(2020, 9, 1))
-        self.dateEdit_5.setObjectName("dateEdit_5")
-        self.gridLayout_3.addWidget(self.dateEdit_5, 0, 1, 1, 1)
+        self.delivery_start = QtWidgets.QDateEdit(self.gridLayoutWidget_3)
+        self.delivery_start.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.delivery_start.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.delivery_start.setWrapping(False)
+        self.delivery_start.setReadOnly(False)
+        self.delivery_start.setButtonSymbols(QtWidgets.QAbstractSpinBox.UpDownArrows)
+        self.delivery_start.setKeyboardTracking(True)
+        self.delivery_start.setDateTime(QtCore.QDateTime(QtCore.QDate(2020, 9, 1), QtCore.QTime(0, 0, 0)))
+        self.delivery_start.setCalendarPopup(True)
+        self.delivery_start.setDate(QtCore.QDate(2020, 9, 1))
+        self.delivery_start.setObjectName("delivery_start")
+        self.gridLayout_3.addWidget(self.delivery_start, 0, 1, 1, 1)
         self.label_8 = QtWidgets.QLabel(self.gridLayoutWidget_3)
+        self.label_8.setAlignment(QtCore.Qt.AlignCenter)
         self.label_8.setObjectName("label_8")
         self.gridLayout_3.addWidget(self.label_8, 0, 0, 1, 1)
-        self.pushButton_5 = QtWidgets.QPushButton(self.gridLayoutWidget_3)
-        self.pushButton_5.setObjectName("pushButton_5")
-        self.gridLayout_3.addWidget(self.pushButton_5, 0, 3, 1, 1)
-        self.dateEdit_6 = QtWidgets.QDateEdit(self.gridLayoutWidget_3)
-        self.dateEdit_6.setFocusPolicy(QtCore.Qt.NoFocus)
-        self.dateEdit_6.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
-        self.dateEdit_6.setWrapping(False)
-        self.dateEdit_6.setReadOnly(False)
-        self.dateEdit_6.setButtonSymbols(QtWidgets.QAbstractSpinBox.UpDownArrows)
-        self.dateEdit_6.setKeyboardTracking(True)
-        self.dateEdit_6.setDateTime(QtCore.QDateTime(QtCore.QDate(2020, 9, 1), QtCore.QTime(0, 0, 0)))
-        self.dateEdit_6.setCalendarPopup(True)
-        self.dateEdit_6.setDate(QtCore.QDate(2020, 9, 1))
-        self.dateEdit_6.setObjectName("dateEdit_6")
-        self.gridLayout_3.addWidget(self.dateEdit_6, 0, 2, 1, 1)
-        self.tableView_2 = QtWidgets.QTableView(self.tab_3)
-        self.tableView_2.setGeometry(QtCore.QRect(20, 70, 1101, 651))
-        self.tableView_2.setObjectName("tableView_2")
+        self.delivery_statistic = QtWidgets.QPushButton(self.gridLayoutWidget_3)
+        self.delivery_statistic.setObjectName("delivery_statistic")
+        self.gridLayout_3.addWidget(self.delivery_statistic, 0, 3, 1, 1)
+        self.deliver_end = QtWidgets.QDateEdit(self.gridLayoutWidget_3)
+        self.deliver_end.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.deliver_end.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.deliver_end.setWrapping(False)
+        self.deliver_end.setReadOnly(False)
+        self.deliver_end.setButtonSymbols(QtWidgets.QAbstractSpinBox.UpDownArrows)
+        self.deliver_end.setKeyboardTracking(True)
+        self.deliver_end.setDateTime(QtCore.QDateTime(QtCore.QDate(2020, 9, 1), QtCore.QTime(0, 0, 0)))
+        self.deliver_end.setCalendarPopup(True)
+        self.deliver_end.setDate(QtCore.QDate(2020, 9, 1))
+        self.deliver_end.setObjectName("deliver_end")
+        self.gridLayout_3.addWidget(self.deliver_end, 0, 2, 1, 1)
         self.tabWidget.addTab(self.tab_3, "")
         self.tab_4 = QtWidgets.QWidget()
         self.tab_4.setObjectName("tab_4")
+        self.tableView_3 = QtWidgets.QTableView(self.tab_4)
+        self.tableView_3.setGeometry(QtCore.QRect(20, 50, 1091, 421))
+        self.tableView_3.setObjectName("tableView_3")
         self.gridLayoutWidget_4 = QtWidgets.QWidget(self.tab_4)
-        self.gridLayoutWidget_4.setGeometry(QtCore.QRect(20, 10, 401, 33))
+        self.gridLayoutWidget_4.setGeometry(QtCore.QRect(20, 10, 591, 33))
         self.gridLayoutWidget_4.setObjectName("gridLayoutWidget_4")
-        self.gridLayout_5 = QtWidgets.QGridLayout(self.gridLayoutWidget_4)
-        self.gridLayout_5.setContentsMargins(0, 0, 0, 0)
-        self.gridLayout_5.setObjectName("gridLayout_5")
-        self.label_10 = QtWidgets.QLabel(self.gridLayoutWidget_4)
-        self.label_10.setObjectName("label_10")
-        self.gridLayout_5.addWidget(self.label_10, 0, 0, 1, 1)
-        self.pushButton_7 = QtWidgets.QPushButton(self.gridLayoutWidget_4)
-        self.pushButton_7.setObjectName("pushButton_7")
-        self.gridLayout_5.addWidget(self.pushButton_7, 0, 3, 1, 1)
-        self.dateEdit_9 = QtWidgets.QDateEdit(self.gridLayoutWidget_4)
-        self.dateEdit_9.setCalendarPopup(True)
-        self.dateEdit_9.setDate(QtCore.QDate(2020, 9, 1))
-        self.dateEdit_9.setObjectName("dateEdit_9")
-        self.gridLayout_5.addWidget(self.dateEdit_9, 0, 2, 1, 1)
-        self.dateEdit_10 = QtWidgets.QDateEdit(self.gridLayoutWidget_4)
-        self.dateEdit_10.setCalendarPopup(True)
-        self.dateEdit_10.setDate(QtCore.QDate(2020, 9, 1))
-        self.dateEdit_10.setObjectName("dateEdit_10")
-        self.gridLayout_5.addWidget(self.dateEdit_10, 0, 1, 1, 1)
+        self.gridLayout_4 = QtWidgets.QGridLayout(self.gridLayoutWidget_4)
+        self.gridLayout_4.setContentsMargins(0, 0, 0, 0)
+        self.gridLayout_4.setObjectName("gridLayout_4")
+        self.labor_start = QtWidgets.QDateEdit(self.gridLayoutWidget_4)
+        self.labor_start.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.labor_start.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.labor_start.setWrapping(False)
+        self.labor_start.setReadOnly(False)
+        self.labor_start.setButtonSymbols(QtWidgets.QAbstractSpinBox.UpDownArrows)
+        self.labor_start.setKeyboardTracking(True)
+        self.labor_start.setDateTime(QtCore.QDateTime(QtCore.QDate(2020, 9, 1), QtCore.QTime(0, 0, 0)))
+        self.labor_start.setCalendarPopup(True)
+        self.labor_start.setDate(QtCore.QDate(2020, 9, 1))
+        self.labor_start.setObjectName("labor_start")
+        self.gridLayout_4.addWidget(self.labor_start, 0, 1, 1, 1)
+        self.label_9 = QtWidgets.QLabel(self.gridLayoutWidget_4)
+        self.label_9.setAlignment(QtCore.Qt.AlignCenter)
+        self.label_9.setObjectName("label_9")
+        self.gridLayout_4.addWidget(self.label_9, 0, 0, 1, 1)
+        self.labor_statistic = QtWidgets.QPushButton(self.gridLayoutWidget_4)
+        self.labor_statistic.setObjectName("labor_statistic")
+        self.gridLayout_4.addWidget(self.labor_statistic, 0, 3, 1, 1)
+        self.labor_end = QtWidgets.QDateEdit(self.gridLayoutWidget_4)
+        self.labor_end.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.labor_end.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.labor_end.setWrapping(False)
+        self.labor_end.setReadOnly(False)
+        self.labor_end.setButtonSymbols(QtWidgets.QAbstractSpinBox.UpDownArrows)
+        self.labor_end.setKeyboardTracking(True)
+        self.labor_end.setDateTime(QtCore.QDateTime(QtCore.QDate(2020, 9, 1), QtCore.QTime(0, 0, 0)))
+        self.labor_end.setCalendarPopup(True)
+        self.labor_end.setDate(QtCore.QDate(2020, 9, 1))
+        self.labor_end.setObjectName("labor_end")
+        self.gridLayout_4.addWidget(self.labor_end, 0, 2, 1, 1)
         self.tabWidget.addTab(self.tab_4, "")
         self.tab_5 = QtWidgets.QWidget()
         self.tab_5.setObjectName("tab_5")
@@ -279,13 +498,19 @@ class Ui_MainWindow(QMainWindow):
         self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
-        self.file_list = []
-        self.file_upload.clicked.connect(self.file)
-        self.delete_2.clicked.connect(self.removeCurrentItem)
-        self.start_Crawl.clicked.connect(self.crawling)
+        # 생각 데이터 완료 버튼 연결해야댐
+        self.saenggak_file_list = []
+        self.file_upload.clicked.connect(self.saenggak_file)
+        self.delete_2.clicked.connect(self.saenggak_removeCurrentItem)
+        # 알밤 데이터 완료 버튼 연결해야댐
+        self.albam_file_list = []
+        self.albam_upload.clicked.connect(self.albam_file)
+        self.albam_delete.clicked.connect(self.albam_removeCurrentItem)
 
-        # https://www.da-hae.kr/pyqt5-qthread-%EC%82%AC%EC%9A%A9%EB%B2%95/
-        # https://m.blog.naver.com/PostView.nhn?blogId=townpharm&logNo=220959370280&proxyReferer=https:%2F%2Fwww.google.com%2F
+        self.sales_statistic.clicked.connect(self.sales)
+
+
+        self.start_Crawl.clicked.connect(self.threadStart)
         # 쓰레드 인스턴스 생성
         self.th = TestThread(self)
 
@@ -296,69 +521,113 @@ class Ui_MainWindow(QMainWindow):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.start_Crawl.setText(_translate("MainWindow", "검색"))
+        self.start_Crawl.setText(_translate("MainWindow", "시작"))
+        self.label.setText(_translate("MainWindow", "기간"))
         self.label_2.setText(_translate("MainWindow", "배달의민족"))
-        self.label.setText(_translate("MainWindow", "검색기간"))
         self.label_3.setText(_translate("MainWindow", "나우웨이팅"))
-        self.label_4.setText(_translate("MainWindow", "알밤"))
         self.file_upload.setText(_translate("MainWindow", "파일 첨부"))
         self.upload.setText(_translate("MainWindow", "완료"))
         self.label_5.setText(_translate("MainWindow", "크롤링"))
         self.label_6.setText(_translate("MainWindow", "생각대로 데이터 첨부"))
         self.delete_2.setText(_translate("MainWindow", "삭제"))
+        self.label_4.setText(_translate("MainWindow", "알밤"))
+        self.albam_upload.setText(_translate("MainWindow", "파일 첨부"))
+        self.albam_upload_2.setText(_translate("MainWindow", "완료"))
+        self.albam_delete.setText(_translate("MainWindow", "삭제"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_1), _translate("MainWindow", "크롤링"))
         self.label_7.setText(_translate("MainWindow", "검색기간"))
-        self.pushButton_4.setText(_translate("MainWindow", "검색"))
+        self.sales_statistic.setText(_translate("MainWindow", "검색"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "매출분석"))
         self.label_8.setText(_translate("MainWindow", "검색기간"))
-        self.pushButton_5.setText(_translate("MainWindow", "검색"))
+        self.delivery_statistic.setText(_translate("MainWindow", "검색"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("MainWindow", "배달분석"))
-        self.label_10.setText(_translate("MainWindow", "검색기간"))
-        self.pushButton_7.setText(_translate("MainWindow", "검색"))
+        self.label_9.setText(_translate("MainWindow", "검색기간"))
+        self.labor_statistic.setText(_translate("MainWindow", "검색"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_4), _translate("MainWindow", "인건비"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_5), _translate("MainWindow", "매입"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_6), _translate("MainWindow", "재고"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_7), _translate("MainWindow", "순수익"))
 
-    def file(self):
+    @pyqtSlot(str)
+    def threadEventHandler(self, n):
+        self.baemin.setText(n + " 완료")
+        self.now_waiting.setText(n + " 완료")
+
+    @pyqtSlot()
+    def threadStart(self):
+        if not self.th.isRun:
+            self.th.isRun = True
+            start_date = list(map(int, self.start_date.text().split('-')))
+            end_date = list(map(int, self.end_date.text().split('-')))
+            start_date = datetime.datetime(start_date[0], start_date[1], start_date[2])
+            end_date = datetime.datetime(end_date[0], end_date[1], end_date[2])
+            date = []
+            if start_date > end_date:
+                x = QMessageBox()
+                self.center()
+                x.about(self, "오류", "날짜를 확인해주세요")
+                return
+            while start_date <= end_date:
+                date.append(start_date.strftime('%Y-%m-%d'))
+                start_date = start_date + datetime.timedelta(days=1)
+            self.th.dates = date
+            self.start_Crawl.setDisabled(True)
+            self.start_Crawl.setText("취소")
+            self.th.start()
+        else:
+            self.th.isRun = False
+            x = QMessageBox()
+            self.center()
+            x.about(self, "경고", "취소하였습니다.")
+            self.baemin.setText("취소됨")
+            self.now_waiting.setText("취소됨")
+            self.th.driver.close()
+            # print(driver)
+            # while driver is None:
+            #     driver = self.th.driver
+            # driver.close()
+            self.start_Crawl.setText("시작")
+
+            self.th.terminate()
+
+
+    def albam_file(self):
         fname = QFileDialog.getOpenFileNames(self)
-        print(fname)
         for f in fname[0]:
-            # x = QtWidgets.QLabel(self.listView)
+            self.albam_list.addItem(f)
+            self.albam_file_list.append(f)
+
+    def albam_removeCurrentItem(self) :
+        #ListWidget에서 현재 선택한 항목을 삭제할 때는 선택한 항목의 줄을 반환한 후, takeItem함수를 이용해 삭제합니다.
+        removeItemRow = self.albam_list.currentRow()
+        self.albam_list.takeItem(removeItemRow)
+        self.albam_file_list.pop(removeItemRow)
+
+
+    def saenggak_file(self):
+        fname = QFileDialog.getOpenFileNames(self)
+        for f in fname[0]:
             self.listView.addItem(f)
-            self.file_list.append(f)
-        pass
-    def removeCurrentItem(self) :
+            self.saenggak_file_list.append(f)
+
+    def saenggak_removeCurrentItem(self) :
         #ListWidget에서 현재 선택한 항목을 삭제할 때는 선택한 항목의 줄을 반환한 후, takeItem함수를 이용해 삭제합니다.
         removeItemRow = self.listView.currentRow()
         self.listView.takeItem(removeItemRow)
-        self.file_list.pop(removeItemRow)
+        self.saenggak_file_list.pop(removeItemRow)
 
-
-    def crawling(self):
-        start_date = list(map(int, self.start_date.text().split('-')))
-        end_date = list(map(int, self.end_date.text().split('-')))
-        start_date = datetime.datetime(start_date[0], start_date[1], start_date[2])
-        end_date = datetime.datetime(end_date[0], end_date[1], end_date[2])
-        date = []
-        if start_date > end_date:
-            x = QMessageBox()
-            self.center()
-            x.about(self, "오류", "날짜를 확인해주세요")
-            return
-        while start_date <= end_date:
-            date.append(start_date.strftime('%Y-%m-%d'))
-            start_date = start_date + datetime.timedelta(days=1)
-        return self.start_c(date)
-
-    def start_c(self, date):
-        main(self, date)
 
     def center(self):
         qr = self.frameGeometry()
         cp = QDesktopWidget().availableGeometry().center()
         qr.moveCenter(cp)
         self.move(qr.topLeft())
+
+
+    def sales(self):
+        df = pd.read_csv("./statistic_code/알밤.csv", encoding='utf-8-sig')
+        model = pandasModel(df)
+        self.tableView.setModel(model)
 
 if __name__ == "__main__":
     import sys

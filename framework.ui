@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1123</width>
+    <width>1127</width>
     <height>525</height>
    </rect>
   </property>
@@ -23,6 +23,14 @@
       <height>531</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <family>양재인장체M</family>
+      <pointsize>10</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
+     </font>
+    </property>
     <property name="currentIndex">
      <number>0</number>
     </property>
@@ -33,11 +41,19 @@
      <widget class="QWidget" name="gridLayoutWidget">
       <property name="geometry">
        <rect>
-        <x>220</x>
+        <x>230</x>
         <y>20</y>
-        <width>871</width>
-        <height>191</height>
+        <width>841</width>
+        <height>121</height>
        </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>양재인장체M</family>
+        <pointsize>10</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
       </property>
       <layout class="QGridLayout" name="gridLayout">
        <property name="sizeConstraint">
@@ -45,6 +61,14 @@
        </property>
        <item row="0" column="3">
         <widget class="QPushButton" name="start_Crawl">
+         <property name="font">
+          <font>
+           <family>양재인장체M</family>
+           <pointsize>10</pointsize>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
          <property name="text">
           <string>시작</string>
          </property>
@@ -52,6 +76,14 @@
        </item>
        <item row="0" column="1">
         <widget class="QDateEdit" name="start_date">
+         <property name="font">
+          <font>
+           <family>양재인장체M</family>
+           <pointsize>10</pointsize>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
          <property name="focusPolicy">
           <enum>Qt::NoFocus</enum>
          </property>
@@ -98,21 +130,16 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_2">
-         <property name="frameShape">
-          <enum>QFrame::Box</enum>
-         </property>
-         <property name="text">
-          <string>배달의민족</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
        <item row="0" column="0">
         <widget class="QLabel" name="label">
+         <property name="font">
+          <font>
+           <family>양재인장체M</family>
+           <pointsize>10</pointsize>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
          <property name="frameShape">
           <enum>QFrame::Box</enum>
          </property>
@@ -129,6 +156,14 @@
        </item>
        <item row="0" column="2">
         <widget class="QDateEdit" name="end_date">
+         <property name="font">
+          <font>
+           <family>양재인장체M</family>
+           <pointsize>10</pointsize>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
          <property name="frame">
           <bool>true</bool>
          </property>
@@ -147,8 +182,37 @@
          </property>
         </widget>
        </item>
-       <item row="2" column="0">
+       <item row="1" column="1">
+        <widget class="QLabel" name="label_2">
+         <property name="font">
+          <font>
+           <family>양재인장체M</family>
+           <pointsize>10</pointsize>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::Box</enum>
+         </property>
+         <property name="text">
+          <string>배달의민족</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
         <widget class="QLabel" name="label_3">
+         <property name="font">
+          <font>
+           <family>양재인장체M</family>
+           <pointsize>10</pointsize>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
          <property name="frameShape">
           <enum>QFrame::Box</enum>
          </property>
@@ -160,21 +224,16 @@
          </property>
         </widget>
        </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="label_4">
-         <property name="frameShape">
-          <enum>QFrame::Box</enum>
+       <item row="2" column="2">
+        <widget class="QLabel" name="now_waiting">
+         <property name="font">
+          <font>
+           <family>양재인장체M</family>
+           <pointsize>10</pointsize>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
          </property>
-         <property name="text">
-          <string>알밤</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QLabel" name="baemin">
          <property name="text">
           <string/>
          </property>
@@ -184,17 +243,15 @@
         </widget>
        </item>
        <item row="2" column="1">
-        <widget class="QLabel" name="now_waiting">
-         <property name="text">
-          <string/>
+        <widget class="QLabel" name="baemin">
+         <property name="font">
+          <font>
+           <family>양재인장체M</family>
+           <pointsize>10</pointsize>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
          </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <widget class="QLabel" name="albam">
          <property name="text">
           <string/>
          </property>
@@ -214,6 +271,14 @@
         <height>41</height>
        </rect>
       </property>
+      <property name="font">
+       <font>
+        <family>양재인장체M</family>
+        <pointsize>10</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
+      </property>
       <property name="text">
        <string>파일 첨부</string>
       </property>
@@ -227,6 +292,14 @@
         <height>41</height>
        </rect>
       </property>
+      <property name="font">
+       <font>
+        <family>양재인장체M</family>
+        <pointsize>10</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
+      </property>
       <property name="text">
        <string>완료</string>
       </property>
@@ -235,9 +308,9 @@
       <property name="geometry">
        <rect>
         <x>20</x>
-        <y>10</y>
+        <y>20</y>
         <width>191</width>
-        <height>231</height>
+        <height>121</height>
        </rect>
       </property>
       <property name="maximumSize">
@@ -245,6 +318,14 @@
         <width>191</width>
         <height>231</height>
        </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>양재인장체M</family>
+        <pointsize>10</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
       </property>
       <property name="text">
        <string>크롤링</string>
@@ -271,6 +352,14 @@
         <height>16</height>
        </rect>
       </property>
+      <property name="font">
+       <font>
+        <family>양재인장체M</family>
+        <pointsize>10</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
+      </property>
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
@@ -278,8 +367,8 @@
      <widget class="QLabel" name="label_6">
       <property name="geometry">
        <rect>
-        <x>30</x>
-        <y>270</y>
+        <x>20</x>
+        <y>260</y>
         <width>191</width>
         <height>231</height>
        </rect>
@@ -289,6 +378,14 @@
         <width>191</width>
         <height>231</height>
        </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>양재인장체M</family>
+        <pointsize>10</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
       </property>
       <property name="text">
        <string>생각대로 데이터 첨부</string>
@@ -315,6 +412,14 @@
         <height>201</height>
        </rect>
       </property>
+      <property name="font">
+       <font>
+        <family>양재인장체M</family>
+        <pointsize>10</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
+      </property>
      </widget>
      <widget class="QPushButton" name="delete_2">
       <property name="geometry">
@@ -324,6 +429,122 @@
         <width>121</width>
         <height>41</height>
        </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>양재인장체M</family>
+        <pointsize>10</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>삭제</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_4">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>170</y>
+        <width>212</width>
+        <height>47</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>양재인장체M</family>
+        <pointsize>10</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::Box</enum>
+      </property>
+      <property name="text">
+       <string>알밤</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QListView" name="albam_list">
+      <property name="geometry">
+       <rect>
+        <x>230</x>
+        <y>150</y>
+        <width>561</width>
+        <height>91</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>양재인장체M</family>
+        <pointsize>10</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="albam_upload">
+      <property name="geometry">
+       <rect>
+        <x>810</x>
+        <y>150</y>
+        <width>261</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>양재인장체M</family>
+        <pointsize>10</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>파일 첨부</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="albam_upload_2">
+      <property name="geometry">
+       <rect>
+        <x>950</x>
+        <y>200</y>
+        <width>121</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>양재인장체M</family>
+        <pointsize>10</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>완료</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="albam_delete">
+      <property name="geometry">
+       <rect>
+        <x>810</x>
+        <y>200</y>
+        <width>121</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>양재인장체M</family>
+        <pointsize>10</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
       </property>
       <property name="text">
        <string>삭제</string>
@@ -339,13 +560,13 @@
        <rect>
         <x>20</x>
         <y>10</y>
-        <width>401</width>
+        <width>591</width>
         <height>33</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_2">
        <item row="0" column="1">
-        <widget class="QDateEdit" name="dateEdit_3">
+        <widget class="QDateEdit" name="sales_start">
          <property name="focusPolicy">
           <enum>Qt::NoFocus</enum>
          </property>
@@ -391,17 +612,20 @@
          <property name="text">
           <string>검색기간</string>
          </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
         </widget>
        </item>
        <item row="0" column="3">
-        <widget class="QPushButton" name="pushButton_4">
+        <widget class="QPushButton" name="sales_statistic">
          <property name="text">
           <string>검색</string>
          </property>
         </widget>
        </item>
        <item row="0" column="2">
-        <widget class="QDateEdit" name="dateEdit_4">
+        <widget class="QDateEdit" name="sales_end">
          <property name="focusPolicy">
           <enum>Qt::NoFocus</enum>
          </property>
@@ -450,7 +674,7 @@
         <x>20</x>
         <y>50</y>
         <width>1101</width>
-        <height>411</height>
+        <height>421</height>
        </rect>
       </property>
      </widget>
@@ -459,18 +683,28 @@
      <attribute name="title">
       <string>배달분석</string>
      </attribute>
+     <widget class="QTableView" name="tableView_2">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>50</y>
+        <width>1091</width>
+        <height>421</height>
+       </rect>
+      </property>
+     </widget>
      <widget class="QWidget" name="gridLayoutWidget_3">
       <property name="geometry">
        <rect>
         <x>20</x>
         <y>10</y>
-        <width>401</width>
+        <width>591</width>
         <height>33</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_3">
        <item row="0" column="1">
-        <widget class="QDateEdit" name="dateEdit_5">
+        <widget class="QDateEdit" name="delivery_start">
          <property name="focusPolicy">
           <enum>Qt::NoFocus</enum>
          </property>
@@ -516,17 +750,20 @@
          <property name="text">
           <string>검색기간</string>
          </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
         </widget>
        </item>
        <item row="0" column="3">
-        <widget class="QPushButton" name="pushButton_5">
+        <widget class="QPushButton" name="delivery_statistic">
          <property name="text">
           <string>검색</string>
          </property>
         </widget>
        </item>
        <item row="0" column="2">
-        <widget class="QDateEdit" name="dateEdit_6">
+        <widget class="QDateEdit" name="deliver_end">
          <property name="focusPolicy">
           <enum>Qt::NoFocus</enum>
          </property>
@@ -569,47 +806,61 @@
        </item>
       </layout>
      </widget>
-     <widget class="QTableView" name="tableView_2">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>70</y>
-        <width>1101</width>
-        <height>401</height>
-       </rect>
-      </property>
-     </widget>
     </widget>
     <widget class="QWidget" name="tab_4">
      <attribute name="title">
       <string>인건비</string>
      </attribute>
+     <widget class="QTableView" name="tableView_3">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>50</y>
+        <width>1091</width>
+        <height>421</height>
+       </rect>
+      </property>
+     </widget>
      <widget class="QWidget" name="gridLayoutWidget_4">
       <property name="geometry">
        <rect>
         <x>20</x>
         <y>10</y>
-        <width>401</width>
+        <width>591</width>
         <height>33</height>
        </rect>
       </property>
-      <layout class="QGridLayout" name="gridLayout_5">
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_10">
-         <property name="text">
-          <string>검색기간</string>
+      <layout class="QGridLayout" name="gridLayout_4">
+       <item row="0" column="1">
+        <widget class="QDateEdit" name="labor_start">
+         <property name="focusPolicy">
+          <enum>Qt::NoFocus</enum>
          </property>
-        </widget>
-       </item>
-       <item row="0" column="3">
-        <widget class="QPushButton" name="pushButton_7">
-         <property name="text">
-          <string>검색</string>
+         <property name="contextMenuPolicy">
+          <enum>Qt::CustomContextMenu</enum>
          </property>
-        </widget>
-       </item>
-       <item row="0" column="2">
-        <widget class="QDateEdit" name="dateEdit_9">
+         <property name="wrapping">
+          <bool>false</bool>
+         </property>
+         <property name="readOnly">
+          <bool>false</bool>
+         </property>
+         <property name="buttonSymbols">
+          <enum>QAbstractSpinBox::UpDownArrows</enum>
+         </property>
+         <property name="keyboardTracking">
+          <bool>true</bool>
+         </property>
+         <property name="dateTime">
+          <datetime>
+           <hour>0</hour>
+           <minute>0</minute>
+           <second>0</second>
+           <year>2020</year>
+           <month>9</month>
+           <day>1</day>
+          </datetime>
+         </property>
          <property name="calendarPopup">
           <bool>true</bool>
          </property>
@@ -622,8 +873,53 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="1">
-        <widget class="QDateEdit" name="dateEdit_10">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_9">
+         <property name="text">
+          <string>검색기간</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="3">
+        <widget class="QPushButton" name="labor_statistic">
+         <property name="text">
+          <string>검색</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="QDateEdit" name="labor_end">
+         <property name="focusPolicy">
+          <enum>Qt::NoFocus</enum>
+         </property>
+         <property name="contextMenuPolicy">
+          <enum>Qt::CustomContextMenu</enum>
+         </property>
+         <property name="wrapping">
+          <bool>false</bool>
+         </property>
+         <property name="readOnly">
+          <bool>false</bool>
+         </property>
+         <property name="buttonSymbols">
+          <enum>QAbstractSpinBox::UpDownArrows</enum>
+         </property>
+         <property name="keyboardTracking">
+          <bool>true</bool>
+         </property>
+         <property name="dateTime">
+          <datetime>
+           <hour>0</hour>
+           <minute>0</minute>
+           <second>0</second>
+           <year>2020</year>
+           <month>9</month>
+           <day>1</day>
+          </datetime>
+         </property>
          <property name="calendarPopup">
           <bool>true</bool>
          </property>
@@ -637,16 +933,6 @@
         </widget>
        </item>
       </layout>
-     </widget>
-     <widget class="QTableView" name="tableView_3">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>60</y>
-        <width>1101</width>
-        <height>401</height>
-       </rect>
-      </property>
      </widget>
     </widget>
     <widget class="QWidget" name="tab_5">
