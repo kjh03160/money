@@ -29,8 +29,8 @@ def baemin_main(driver, date, i):
         driver = baemin(driver, date)
         try:
             to_csv(date)
-        except FileNotFoundError:
-            pass
+        except FileNotFoundError as err:
+            print(err)
     else:
         driver = baemin_7(driver, date)
     if not driver:

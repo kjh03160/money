@@ -3,7 +3,7 @@ import json
 
 
 def to_csv(date):
-    with open('../data/baemin/' + date + '.json', 'r', encoding='UTF-8')as file:
+    with open('./data/baemin/' + date + '.json', 'r', encoding='UTF-8')as file:
         x = json.load(file)
     if len(x) == 0:
         return
@@ -50,7 +50,15 @@ def to_csv(date):
 
     for i in range(n):
         if len(df.iloc[i]['배달요청사항']):
-            df.iloc[i, 12] = df.iloc[i]['배달요청사항'][0]['memo']
+            val = df.iloc[i]['배달요청사항']
+            for x in val:
+                if x['memoType'] == 'RIDER':
+                    df.iloc[i, 12] = x['memo']
+                    break
+                else:
+                    df.iloc[i, 12] = ''
+        else:
+            df.iloc[i, 12] = ''
 
     for i in range(n):
         items = []
@@ -80,37 +88,21 @@ def to_csv(date):
         df.loc[i, '드레싱'] = ', '.join(dr)
 
     df['결제금액'] = df['주문금액'] + df['배달팁']
-
+    df['실제배달료'] = None
     cols = [ '주문번호', '수령방법', '결제방법', '항목', '추가선택', '드레싱', '서비스타입', '주문금액', '배달팁', '결제금액', '주문시각',
-           '접수시각', '배달시각', '주소', '요청사항', '배달요청사항']
+           '접수시각', '배달시각', '주소', '요청사항', '배달요청사항', '실제배달료']
     df = df[cols]
     import os
 
-    if os.path.isfile('../data/baemin/배민누적데이터.csv'):
-        prev = pd.read_csv('../data/baemin/배민누적데이터.csv')
+    if os.path.isfile('./data/baemin/Accumulated_data.csv'):
+        prev = pd.read_csv('./data/baemin/Accumulated_data.csv')
         dup = prev[prev['주문시각'].str.contains(date)].index
         prev = prev.drop(dup)
         df = pd.concat([prev, df], sort=False)
-    df = df.sort_values(by=['주문시각'])
+    df = df.sort_values(by=['주문시각'], ascending=False)
 
-    df.to_csv('../data/baemin/배민누적데이터.csv', index=False, mode='w', encoding='utf-8-sig')
-
-
+    df.to_csv('./data/baemin/Accumulated_data.csv', index=False, mode='w', encoding='utf-8-sig')
 
 
-"""
-    path = './data/baemin/'
-    files = glob.glob(path + "/*.json")
-    li = []
-    print(files)
-
-    for file in files:
-        with open(file, 'r', encoding='utf-8-sig') as file:
-            x = json.load(file)
-            if len(x) == 0:
-                continue
-            df = pd.DataFrame(x)
-            li.append(df)
-
-    df = pd.concat(li, axis=0, ignore_index=True)
-    """
+if __name__ == '__main__':
+    to_csv([])

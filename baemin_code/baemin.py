@@ -30,7 +30,7 @@ def baemin(driver, date):
             urls  = ["https://ceo.baemin.com/v1/orders/"+  id + "?__ts=1598459367645" for id in orders]
 
             time.sleep(1)
-            with open('data/baemin/' + date + '.json', 'w', encoding='UTF-8') as file:
+            with open('./data/baemin/' + date + '.json', 'w', encoding='UTF-8') as file:
                 temp = []
                 for i in urls:
                     driver.get_url(i)

@@ -4,17 +4,15 @@ import os
 import datetime
 import time
 def baemin_7(driver, date):
-    if  driver.driver.title == "ERROR: The request could not be satisfied":
+    if driver.driver.title == "ERROR: The request could not be satisfied":
         return False
 
-    nav = driver.find_all_by_css("nav.Paging ul li")[-2]
+    # nav = driver.find_all_by_css("nav.Paging ul li")[-2]
     result = []
     flag = False
-    print(nav.get_attribute("class"))
 
-    while nav.get_attribute("class") == "":
-        time.sleep(0.2)
-        nav = driver.find_all_by_css("nav.Paging ul li a")[-2]
+    while True:
+        time.sleep(0.3)
         trs = driver.find_all_by_css("tbody tr")
 
         for row in trs:
@@ -38,7 +36,7 @@ def baemin_7(driver, date):
             temp = {'주문번호': None, '수령방법': None, '결제방법': None, '항목': [], '추가선택': [],
                     '드레싱': [], '서비스타입': '배민', '주문금액': 0,
                     '배달팁': 0, '결제금액': 0, '주문시각': None, '접수시각': None,
-                    '배달시각': None, '주소': None, '요청사항': None, '배달요청사항' : None}
+                    '배달시각': None, '주소': None, '요청사항': None, '배달요청사항' : None, '실제배달료' : None}
             driver.click(order)
             time.sleep(0.5)
 
@@ -58,7 +56,10 @@ def baemin_7(driver, date):
                         temp['추가선택'].append((tr.text.strip().split(" 추가")[0][2:]))
                 else:
                     item_ = driver.find_by_tag_with_obj(tr, "td").text
-                    temp['항목'].append(item_)
+                    if '추가' in item_:
+                        temp['드레싱'].append(item_.split()[1])
+                    else:
+                        temp['항목'].append(item_)
 
             temp['수령방법'] = driver.find_by_tag_with_obj(trs2[0], "td").text
             temp['결제방법'] = driver.find_by_tag_with_obj(trs2[1], "td").text.split(" | ")[0]
@@ -82,24 +83,29 @@ def baemin_7(driver, date):
             close = driver.find_by_css( "button.popup")
             driver.click(close)
 
-        if flag:
-            break
-        driver.click(nav)
-        time.sleep(0.2)
+
         nav = driver.find_all_by_css("nav.Paging ul li")[-2]
+
+        print(nav.get_attribute("class"))
+        if flag or nav.get_attribute("class") != "":
+            break
+        a = driver.find_by_tag_with_obj(nav, 'a')
+        driver.click(a)
+        time.sleep(0.2)
+        # nav = driver.find_all_by_css("nav.Paging ul li")[-2]
 
 
     df = pd.DataFrame(result)
     df.to_csv("data/baemin/" + date + '.csv', encoding='utf-8-sig', index=False)
 
-    if os.path.isfile('./data/baemin/배민누적데이터.csv'):
-        prev = pd.read_csv('./data/baemin/배민누적데이터.csv')
+    if os.path.isfile('./data/baemin/Accumulated_data.csv'):
+        prev = pd.read_csv('./data/baemin/Accumulated_data.csv')
         filter1 = prev['주문시각'].str.contains(date)
         filter2 = prev['서비스타입'] == "배민"
         dup = prev[filter1 & filter2].index
         prev = prev.drop(dup)
         df = pd.concat([prev, df], sort=False)
-    df = df.sort_values(by=['주문시각'])
+    df = df.sort_values(by=['주문시각'], ascending=False)
 
-    df.to_csv('./data/baemin/배민누적데이터.csv', index=False, mode='w', encoding='utf-8-sig')
+    df.to_csv('./data/baemin/Accumulated_data.csv', index=False, mode='w', encoding='utf-8-sig')
     return driver
