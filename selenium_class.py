@@ -7,7 +7,7 @@ from selenium.webdriver.common.by import By
 class Driver:
     def __init__(self):
         options = webdriver.ChromeOptions()
-        # options.add_argument('headless')
+        options.add_argument('headless')
         # options.add_argument('--start-fullscreen')
         options.add_argument(
             "user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36")
