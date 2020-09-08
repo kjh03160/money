@@ -14,6 +14,9 @@ def albam_st(dates):
 
     albam = df_in_dates(dates)
 
+    if len(albam) == 0:
+        return False
+
 
     computed = pd.DataFrame()
     computed['직원명'] = albam['직원명']

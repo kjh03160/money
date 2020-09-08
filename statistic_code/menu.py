@@ -18,6 +18,9 @@ def menu_st(dates):
     nw = df_in_dates(nw, dates)
     bm = df_in_dates(bm, dates)
 
+    if len(nw) == 0 or len(bm) == 0:
+        return False
+
     index1 = pd.MultiIndex.from_product([['샐러드', '메인추가'], ['목살', '닭가슴살', '숲속', '연어']])
     index2 = pd.MultiIndex.from_tuples([('샐러드', '이너프'),('extra','고구마'),('extra','계란'),('드레싱','발사믹'),('드레싱','오리엔탈'),('드레싱','렌치')])
     columns = ['배달의민족', '키오스크', '챗봇', '현금', '총합', '비율']

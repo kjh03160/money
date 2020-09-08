@@ -22,6 +22,8 @@ from nowdata_code.Now_data import now_data_merge
 
 from statistic_code.albam_statistic import albam_st
 from statistic_code.menu import menu_st
+from statistic_code.service_statistic import service_st
+from statistic_code.deliver_st import deliver_st
 
 import datetime
 import pandas as pd
@@ -463,12 +465,12 @@ class Ui_MainWindow(QMainWindow):
         self.order_end.setCalendarPopup(True)
         self.order_end.setDate(QtCore.QDate(year, month, day))
         self.order_end.setObjectName("order_end")
+
+        self.tableView6 = QtWidgets.QTableView(self.tab_5)
+        self.tableView6.setGeometry(QtCore.QRect(20, 50, 1101, 421))
+        self.tableView6.setObjectName("tableView")
         self.gridLayout_7.addWidget(self.order_end, 0, 2, 1, 1)
         self.tabWidget.addTab(self.tab_5, "주문분석")
-
-
-
-
 
 
 
@@ -515,6 +517,8 @@ class Ui_MainWindow(QMainWindow):
         self.deliver_end.setObjectName("deliver_end")
         self.gridLayout_3.addWidget(self.deliver_end, 0, 2, 1, 1)
         self.tabWidget.addTab(self.tab_3, "")
+
+
         self.tab_4 = QtWidgets.QWidget()
         self.tab_4.setObjectName("tab_4")
         self.tableView_3 = QtWidgets.QTableView(self.tab_4)
@@ -556,7 +560,12 @@ class Ui_MainWindow(QMainWindow):
         self.labor_end.setCalendarPopup(True)
         self.labor_end.setDate(QtCore.QDate(year, month, day))
         self.labor_end.setObjectName("labor_end")
+
+        self.tableView0 = QtWidgets.QTableView(self.tab_4)
+        self.tableView0.setGeometry(QtCore.QRect(20, 50, 1101, 421))
+        self.tableView0.setObjectName("tableView")
         self.gridLayout_4.addWidget(self.labor_end, 0, 2, 1, 1)
+
         self.tabWidget.addTab(self.tab_4, "")
 
 
@@ -755,8 +764,15 @@ class Ui_MainWindow(QMainWindow):
 
     def sales_st(self):
         dates = self.get_dates(self.sales_start, self.sales_end)
+        if dates is None:
+            return
         try:
             df = menu_st(dates)
+            if not df:
+                x = QMessageBox()
+                self.center()
+                x.about(self, "오류", "데이터가 없습니다.")
+                return
             model = pandasModel(df)
             self.tableView.setModel(model)
         except Exception as err:
@@ -764,14 +780,42 @@ class Ui_MainWindow(QMainWindow):
 
     def order_st(self):
         dates = self.get_dates(self.order_start, self.order_end)
-        print(dates)
+        if dates is None:
+            return
+        df = service_st(dates)
+        if not df:
+            x = QMessageBox()
+            self.center()
+            x.about(self, "오류", "데이터가 없습니다.")
+            return
+
+        model = pandasModel(df)
+        self.tableView6.setModel(model)
 
     def delivery_st(self):
         dates = self.get_dates(self.delivery_start, self.deliver_end)
+        if dates is None:
+            return
+
+        df = deliver_st(dates)
+        if not df:
+            x = QMessageBox()
+            self.center()
+            x.about(self, "오류", "데이터가 없습니다.")
+            return
+        model = pandasModel(df)
+        self.tableView_2.setModel(model)
 
     def labor_st(self):
         dates = self.get_dates(self.labor_start, self.labor_end)
+        if dates is None:
+            return
         df = albam_st(dates)
+        if not df:
+            x = QMessageBox()
+            self.center()
+            x.about(self, "오류", "데이터가 없습니다.")
+            return
         model = pandasModel(df)
         self.tableView_3.setModel(model)
 
