@@ -1,48 +1,52 @@
 import pandas as pd
 
 def albam_st(dates):
-    path = '../data/albam/'
-    files = []
-    for date in dates:
-        files.append(path + date + ".csv")
-    li = []
-    print(files)
-    for file in files:
-        df = pd.read_csv(file, sep=',', escapechar='\n')
-        li.append(df)
+    albam = pd.read_csv("./data/albam/total.csv", encoding = "utf-8-sig")
+    albam['출근 체크 날짜'] =pd.to_datetime(albam['출근 체크 날짜'])
 
-    albam = pd.concat(li, axis=0, ignore_index=True)
+    from datetime import datetime
+
+    def df_in_dates(dates):
+        start_date = datetime.strptime(dates[0], '%Y-%m-%d')
+        end_date = datetime.strptime(dates[-1], '%Y-%m-%d') if len(dates) > 1 else start_date
+        filtered = albam.loc[(albam['출근 체크 날짜'] >= start_date) & (albam['출근 체크 날짜'] <= end_date)]
+        return filtered
+
+    albam = df_in_dates(dates)
+
 
     computed = pd.DataFrame()
-    computed['이름'] = albam['이름'].apply(lambda row: row[:row.find('(')])
-    computed['시급'] = albam['시급'].astype(int)
-    computed['근무hrs'] = albam['근무인정시간'].apply(lambda row: row[:row.find('시간')] if row != '-' else 0).astype(int)
-    computed['근무mins'] = albam['근무인정시간'].apply(lambda row: row[row.find('간')+1:row.find('분')] if row != '-' else 0).astype(int)
+    computed['직원명'] = albam['직원명']
+    computed['기준급여'] = albam['기준급여'].astype(int)
+    computed['근무hrs'] = albam['근무인정시간\n(B-A)-C'].apply(lambda row: row[:row.find('시간')] if '시간' in row else 0).astype(int)
+    computed['근무mins'] = albam['근무인정시간\n(B-A)-C'].apply(lambda row: row[row.find('간')+1:row.find('분')] if row != '-' else 0).astype(int)
     computed['총급여'] = albam['총급여'].astype(float)
 
+
     df = pd.DataFrame()
-    df['이름'] = computed['이름'].unique()
+    df['직원명'] = computed['직원명'].unique()
     df['세전급여'] = 0
     df['4대보험'] = 0
     df['세후급여'] = 0
     for idx, row in computed.iterrows():
-        name = row['이름']
-        hrs = computed[computed['이름'] == name]['근무hrs'].sum()
-        mins = computed[computed['이름'] == name]['근무mins'].sum()
+        name = row['직원명']
+        hrs = computed[computed['직원명'] == name]['근무hrs'].sum()
+        mins = computed[computed['직원명'] == name]['근무mins'].sum()
         if mins > 60:
             hrs += 1
             mins -= 60
 
-        gross_salary = row['총급여']
+        gross_salary = computed[computed['직원명'] == name]['총급여'].sum()
         insurance = gross_salary * 0.009628
 
-        df.loc[df['이름'] == name, '일한시간'] = f"{hrs}시간 {mins}분"
-        df.loc[df['이름'] == name, '세전급여'] += gross_salary
-        df.loc[df['이름'] == name, '4대보험'] += round(insurance, 2)
-        df.loc[df['이름'] == name, '세후급여'] += round(gross_salary - insurance)
+        df.loc[df['직원명'] == name, '근무시간'] = f"{hrs}시간 {mins}분"
+        df.loc[df['직원명'] == name, '세전급여'] = str(gross_salary).split('.')[0] + " 원"
+        df.loc[df['직원명'] == name, '4대보험'] = str(round(insurance, 0)).split('.')[0] + " 원"
+        df.loc[df['직원명'] == name, '세후급여'] = str(round(gross_salary - insurance)).split('.')[0] + " 원"
 
-    col = ['이름', '일한시간', '세전급여', '4대보험', '세후급여']
-    df[col].to_csv('알밤.csv', index=False, encoding='utf-8-sig')
-
+    col = ['직원명', '근무시간', '세전급여', '4대보험', '세후급여']
+    df = df.sort_values(by=['근무시간'], ascending=False)
+    # df[col].to_csv('알밤.csv', index=False, encoding='utf-8-sig')
+    return df[col]
 if __name__ == '__main__':
-    albam_st(['2020-08-24', '2020-08-25', '2020-08-26', '2020-08-27', '2020-08-28'])
+    albam_st(['2020-09-01'])
