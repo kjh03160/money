@@ -9,15 +9,24 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
-import sys
 from PyQt5.QtCore import QAbstractTableModel, Qt
+
 from selenium_class import Driver
+
 from baemin_code.baemin_main import baemin_main
+from baemin_code.concat_saenggak import concat
 from nowdata_code.now_waiting_main import now_waiting_main
-from albam_code.albam_main import albam_main
+from albam_code.albam_new import albam_pre
+
+from nowdata_code.Now_data import now_data_merge
+
+from statistic_code.albam_statistic import albam_st
+from statistic_code.menu import menu_st
+
 import datetime
 import pandas as pd
 import time
+import os
 
 class TestThread(QThread):
     # 쓰레드의 커스텀 이벤트
@@ -36,35 +45,45 @@ class TestThread(QThread):
         driver = self.driver
         driver.driver.implicitly_wait(10)
         self.main.start_Crawl.setEnabled(True)
+
         for i in range(len(self.dates)):
             date = self.dates[i]
-            self.main.baemin.setText(date + " 수집 중...")
-            self.main.now_waiting.setText(date + " 수집 중...")
+            self.threadEvent.emit(date + " 수집 중..")
             # 배민 수집
             try:
                 driver = baemin_main(driver, date, i)
                 if driver is None:
                     raise Exception
+            except PermissionError:
+                driver.close()
+                self.threadEvent.emit("파일")
+                return
+
             except Exception as err:
-                x = QMessageBox()
-                self.main.center()
-                x.about(self.main, "오류", "배민 request 거부.\n잠시 후 다시 시도해주세요")
+                print(err)
+                driver.close()
+
+                self.threadEvent.emit("오류")
                 self.main.baemin.setText(date + " 부터 다시 시작해주세요.")
                 self.main.now_waiting.setText(date + " 부터 다시 시작해주세요.")
-                break
+                time.sleep(2)
+
+                self.main.start_Crawl.setText("시작")
+                return
 
             # 나우 웨이팅 수집
             driver = now_waiting_main(driver, date, i)
-            self.threadEvent.emit(str(date))
-
             time.sleep(1)
-            print('쓰레드 : ' + str(date))
-            # driver = albam_main(driver, date, i)
-            print(date, "수집 완료")
-
+            self.threadEvent.emit(str(date))
         driver.close()
+        time.sleep(2)
         self.main.start_Crawl.setText("시작")
         self.isRun = False
+        now_data_merge()
+
+        x = QMessageBox()
+        self.main.center()
+        x.about(self.main, "완료", "완료되었습니다!")
 
 
 class pandasModel(QAbstractTableModel):
@@ -92,6 +111,13 @@ class pandasModel(QAbstractTableModel):
 class Ui_MainWindow(QMainWindow):
 
     def setupUi(self, MainWindow):
+
+        now = datetime.datetime.now()
+        year = now.year
+        month = now.month
+        day = now.day
+
+
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1123, 532)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
@@ -128,9 +154,9 @@ class Ui_MainWindow(QMainWindow):
         self.start_date.setReadOnly(False)
         self.start_date.setButtonSymbols(QtWidgets.QAbstractSpinBox.UpDownArrows)
         self.start_date.setKeyboardTracking(True)
-        self.start_date.setDateTime(QtCore.QDateTime(QtCore.QDate(2020, 9, 1), QtCore.QTime(0, 0, 0)))
+        self.start_date.setDateTime(QtCore.QDateTime(QtCore.QDate(year, month, day), QtCore.QTime(0, 0, 0)))
         self.start_date.setCalendarPopup(True)
-        self.start_date.setDate(QtCore.QDate(2020, 9, 1))
+        self.start_date.setDate(QtCore.QDate(year, month, day))
         self.start_date.setObjectName("start_date")
         self.gridLayout.addWidget(self.start_date, 0, 1, 1, 1)
         self.label = QtWidgets.QLabel(self.gridLayoutWidget)
@@ -155,7 +181,7 @@ class Ui_MainWindow(QMainWindow):
         self.end_date.setFrame(True)
         self.end_date.setAlignment(QtCore.Qt.AlignCenter)
         self.end_date.setCalendarPopup(True)
-        self.end_date.setDate(QtCore.QDate(2020, 9, 1))
+        self.end_date.setDate(QtCore.QDate(year, month, day))
         self.end_date.setObjectName("end_date")
         self.gridLayout.addWidget(self.end_date, 0, 2, 1, 1)
         self.label_2 = QtWidgets.QLabel(self.gridLayoutWidget)
@@ -366,9 +392,9 @@ class Ui_MainWindow(QMainWindow):
         self.sales_start.setReadOnly(False)
         self.sales_start.setButtonSymbols(QtWidgets.QAbstractSpinBox.UpDownArrows)
         self.sales_start.setKeyboardTracking(True)
-        self.sales_start.setDateTime(QtCore.QDateTime(QtCore.QDate(2020, 9, 1), QtCore.QTime(0, 0, 0)))
+        self.sales_start.setDateTime(QtCore.QDateTime(QtCore.QDate(year, month, day), QtCore.QTime(0, 0, 0)))
         self.sales_start.setCalendarPopup(True)
-        self.sales_start.setDate(QtCore.QDate(2020, 9, 1))
+        self.sales_start.setDate(QtCore.QDate(year, month, day))
         self.sales_start.setObjectName("sales_start")
         self.gridLayout_2.addWidget(self.sales_start, 0, 1, 1, 1)
         self.label_7 = QtWidgets.QLabel(self.gridLayoutWidget_2)
@@ -385,15 +411,67 @@ class Ui_MainWindow(QMainWindow):
         self.sales_end.setReadOnly(False)
         self.sales_end.setButtonSymbols(QtWidgets.QAbstractSpinBox.UpDownArrows)
         self.sales_end.setKeyboardTracking(True)
-        self.sales_end.setDateTime(QtCore.QDateTime(QtCore.QDate(2020, 9, 1), QtCore.QTime(0, 0, 0)))
+        self.sales_end.setDateTime(QtCore.QDateTime(QtCore.QDate(year, month, day), QtCore.QTime(0, 0, 0)))
         self.sales_end.setCalendarPopup(True)
-        self.sales_end.setDate(QtCore.QDate(2020, 9, 1))
+        self.sales_end.setDate(QtCore.QDate(year, month, day))
         self.sales_end.setObjectName("sales_end")
         self.gridLayout_2.addWidget(self.sales_end, 0, 2, 1, 1)
         self.tableView = QtWidgets.QTableView(self.tab_2)
         self.tableView.setGeometry(QtCore.QRect(20, 50, 1101, 421))
         self.tableView.setObjectName("tableView")
         self.tabWidget.addTab(self.tab_2, "")
+
+        self.tab_5 = QtWidgets.QWidget()
+        self.tab_5.setObjectName("tab_5")
+
+        self.tableView_10 = QtWidgets.QTableView(self.tab_5)
+        self.tableView_10.setGeometry(QtCore.QRect(20, 50, 1091, 421))
+        self.tableView_10.setObjectName("tableView_2")
+        self.gridLayoutWidget_7 = QtWidgets.QWidget(self.tab_5)
+        self.gridLayoutWidget_7.setGeometry(QtCore.QRect(20, 10, 591, 33))
+        self.gridLayoutWidget_7.setObjectName("gridLayoutWidget_3")
+        self.gridLayout_7 = QtWidgets.QGridLayout(self.gridLayoutWidget_7)
+        self.gridLayout_7.setContentsMargins(0, 0, 0, 0)
+        self.gridLayout_7.setObjectName("gridLayout_3")
+        self.order_start = QtWidgets.QDateEdit(self.gridLayoutWidget_7)
+        self.order_start.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.order_start.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.order_start.setWrapping(False)
+        self.order_start.setReadOnly(False)
+        self.order_start.setButtonSymbols(QtWidgets.QAbstractSpinBox.UpDownArrows)
+        self.order_start.setKeyboardTracking(True)
+        self.order_start.setDateTime(QtCore.QDateTime(QtCore.QDate(year, month, day), QtCore.QTime(0, 0, 0)))
+        self.order_start.setCalendarPopup(True)
+        self.order_start.setDate(QtCore.QDate(year, month, day))
+        self.order_start.setObjectName("order_start")
+        self.gridLayout_7.addWidget(self.order_start, 0, 1, 1, 1)
+        self.label_21 = QtWidgets.QLabel(self.gridLayoutWidget_7)
+        self.label_21.setAlignment(QtCore.Qt.AlignCenter)
+        self.label_21.setObjectName("label_8")
+        self.gridLayout_7.addWidget(self.label_21, 0, 0, 1, 1)
+        self.order_statistic = QtWidgets.QPushButton(self.gridLayoutWidget_7)
+        self.order_statistic.setObjectName("order_statistic")
+        self.gridLayout_7.addWidget(self.order_statistic, 0, 3, 1, 1)
+        self.order_end = QtWidgets.QDateEdit(self.gridLayoutWidget_7)
+        self.order_end.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.order_end.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.order_end.setWrapping(False)
+        self.order_end.setReadOnly(False)
+        self.order_end.setButtonSymbols(QtWidgets.QAbstractSpinBox.UpDownArrows)
+        self.order_end.setKeyboardTracking(True)
+        self.order_end.setDateTime(QtCore.QDateTime(QtCore.QDate(year, month, day), QtCore.QTime(0, 0, 0)))
+        self.order_end.setCalendarPopup(True)
+        self.order_end.setDate(QtCore.QDate(year, month, day))
+        self.order_end.setObjectName("order_end")
+        self.gridLayout_7.addWidget(self.order_end, 0, 2, 1, 1)
+        self.tabWidget.addTab(self.tab_5, "주문분석")
+
+
+
+
+
+
+
         self.tab_3 = QtWidgets.QWidget()
         self.tab_3.setObjectName("tab_3")
         self.tableView_2 = QtWidgets.QTableView(self.tab_3)
@@ -412,9 +490,9 @@ class Ui_MainWindow(QMainWindow):
         self.delivery_start.setReadOnly(False)
         self.delivery_start.setButtonSymbols(QtWidgets.QAbstractSpinBox.UpDownArrows)
         self.delivery_start.setKeyboardTracking(True)
-        self.delivery_start.setDateTime(QtCore.QDateTime(QtCore.QDate(2020, 9, 1), QtCore.QTime(0, 0, 0)))
+        self.delivery_start.setDateTime(QtCore.QDateTime(QtCore.QDate(year, month, day), QtCore.QTime(0, 0, 0)))
         self.delivery_start.setCalendarPopup(True)
-        self.delivery_start.setDate(QtCore.QDate(2020, 9, 1))
+        self.delivery_start.setDate(QtCore.QDate(year, month, day))
         self.delivery_start.setObjectName("delivery_start")
         self.gridLayout_3.addWidget(self.delivery_start, 0, 1, 1, 1)
         self.label_8 = QtWidgets.QLabel(self.gridLayoutWidget_3)
@@ -431,9 +509,9 @@ class Ui_MainWindow(QMainWindow):
         self.deliver_end.setReadOnly(False)
         self.deliver_end.setButtonSymbols(QtWidgets.QAbstractSpinBox.UpDownArrows)
         self.deliver_end.setKeyboardTracking(True)
-        self.deliver_end.setDateTime(QtCore.QDateTime(QtCore.QDate(2020, 9, 1), QtCore.QTime(0, 0, 0)))
+        self.deliver_end.setDateTime(QtCore.QDateTime(QtCore.QDate(year, month, day), QtCore.QTime(0, 0, 0)))
         self.deliver_end.setCalendarPopup(True)
-        self.deliver_end.setDate(QtCore.QDate(2020, 9, 1))
+        self.deliver_end.setDate(QtCore.QDate(year, month, day))
         self.deliver_end.setObjectName("deliver_end")
         self.gridLayout_3.addWidget(self.deliver_end, 0, 2, 1, 1)
         self.tabWidget.addTab(self.tab_3, "")
@@ -455,9 +533,9 @@ class Ui_MainWindow(QMainWindow):
         self.labor_start.setReadOnly(False)
         self.labor_start.setButtonSymbols(QtWidgets.QAbstractSpinBox.UpDownArrows)
         self.labor_start.setKeyboardTracking(True)
-        self.labor_start.setDateTime(QtCore.QDateTime(QtCore.QDate(2020, 9, 1), QtCore.QTime(0, 0, 0)))
+        self.labor_start.setDateTime(QtCore.QDateTime(QtCore.QDate(year, month, day), QtCore.QTime(0, 0, 0)))
         self.labor_start.setCalendarPopup(True)
-        self.labor_start.setDate(QtCore.QDate(2020, 9, 1))
+        self.labor_start.setDate(QtCore.QDate(year, month, day))
         self.labor_start.setObjectName("labor_start")
         self.gridLayout_4.addWidget(self.labor_start, 0, 1, 1, 1)
         self.label_9 = QtWidgets.QLabel(self.gridLayoutWidget_4)
@@ -474,21 +552,25 @@ class Ui_MainWindow(QMainWindow):
         self.labor_end.setReadOnly(False)
         self.labor_end.setButtonSymbols(QtWidgets.QAbstractSpinBox.UpDownArrows)
         self.labor_end.setKeyboardTracking(True)
-        self.labor_end.setDateTime(QtCore.QDateTime(QtCore.QDate(2020, 9, 1), QtCore.QTime(0, 0, 0)))
+        self.labor_end.setDateTime(QtCore.QDateTime(QtCore.QDate(year, month, day), QtCore.QTime(0, 0, 0)))
         self.labor_end.setCalendarPopup(True)
-        self.labor_end.setDate(QtCore.QDate(2020, 9, 1))
+        self.labor_end.setDate(QtCore.QDate(year, month, day))
         self.labor_end.setObjectName("labor_end")
         self.gridLayout_4.addWidget(self.labor_end, 0, 2, 1, 1)
         self.tabWidget.addTab(self.tab_4, "")
-        self.tab_5 = QtWidgets.QWidget()
-        self.tab_5.setObjectName("tab_5")
-        self.tabWidget.addTab(self.tab_5, "")
-        self.tab_6 = QtWidgets.QWidget()
-        self.tab_6.setObjectName("tab_6")
-        self.tabWidget.addTab(self.tab_6, "")
-        self.tab_7 = QtWidgets.QWidget()
-        self.tab_7.setObjectName("tab_7")
-        self.tabWidget.addTab(self.tab_7, "")
+
+
+
+
+
+
+
+        # self.tab_6 = QtWidgets.QWidget()
+        # self.tab_6.setObjectName("tab_6")
+        # self.tabWidget.addTab(self.tab_6, "")
+        # self.tab_7 = QtWidgets.QWidget()
+        # self.tab_7.setObjectName("tab_7")
+        # self.tabWidget.addTab(self.tab_7, "")
         MainWindow.setCentralWidget(self.centralwidget)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
@@ -502,12 +584,20 @@ class Ui_MainWindow(QMainWindow):
         self.saenggak_file_list = []
         self.file_upload.clicked.connect(self.saenggak_file)
         self.delete_2.clicked.connect(self.saenggak_removeCurrentItem)
+        self.upload.clicked.connect(self.saenggak_fin)
+
+
         # 알밤 데이터 완료 버튼 연결해야댐
         self.albam_file_list = []
         self.albam_upload.clicked.connect(self.albam_file)
         self.albam_delete.clicked.connect(self.albam_removeCurrentItem)
+        self.albam_upload_2.clicked.connect(self.albam_fin)
 
-        self.sales_statistic.clicked.connect(self.sales)
+        # 통계 연결
+        self.sales_statistic.clicked.connect(self.sales_st)
+        self.labor_statistic.clicked.connect(self.labor_st)
+        self.delivery_statistic.clicked.connect(self.delivery_st)
+        self.order_statistic.clicked.connect(self.order_st)
 
 
         self.start_Crawl.clicked.connect(self.threadStart)
@@ -544,33 +634,44 @@ class Ui_MainWindow(QMainWindow):
         self.label_9.setText(_translate("MainWindow", "검색기간"))
         self.labor_statistic.setText(_translate("MainWindow", "검색"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_4), _translate("MainWindow", "인건비"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_5), _translate("MainWindow", "매입"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_6), _translate("MainWindow", "재고"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_7), _translate("MainWindow", "순수익"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_5), _translate("MainWindow", "주문분석"))
+        self.label_21.setText(_translate("MainWindow", "검색기간"))
+        self.order_statistic.setText(_translate("MainWindow", "검색"))
+        # self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_6), _translate("MainWindow", "재고"))
+        # self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_7), _translate("MainWindow", "순수익"))
 
     @pyqtSlot(str)
     def threadEventHandler(self, n):
-        self.baemin.setText(n + " 완료")
-        self.now_waiting.setText(n + " 완료")
+        if n == "오류":
+            x = QMessageBox()
+            self.center()
+            x.about(self, "오류", "배민 request 거부.\n잠시 후 다시 시도해주세요")
+
+            self.start_Crawl.setText("시작")
+            self.th.isRun = False
+            self.th.terminate()
+        elif n == "파일":
+            x = QMessageBox()
+            self.center()
+            x.about(self, "오류", "csv 파일을 닫아주세요")
+
+            self.start_Crawl.setText("시작")
+            self.th.isRun = False
+            self.th.terminate()
+        elif '수집' in n:
+            self.baemin.setText(n)
+            self.now_waiting.setText(n)
+        else:
+            self.baemin.setText(n + " 완료")
+            self.now_waiting.setText(n + " 완료")
 
     @pyqtSlot()
     def threadStart(self):
         if not self.th.isRun:
-            self.th.isRun = True
-            start_date = list(map(int, self.start_date.text().split('-')))
-            end_date = list(map(int, self.end_date.text().split('-')))
-            start_date = datetime.datetime(start_date[0], start_date[1], start_date[2])
-            end_date = datetime.datetime(end_date[0], end_date[1], end_date[2])
-            date = []
-            if start_date > end_date:
-                x = QMessageBox()
-                self.center()
-                x.about(self, "오류", "날짜를 확인해주세요")
+            self.th.dates = self.get_dates(self.start_date, self.end_date)
+            if self.th.dates is None:
                 return
-            while start_date <= end_date:
-                date.append(start_date.strftime('%Y-%m-%d'))
-                start_date = start_date + datetime.timedelta(days=1)
-            self.th.dates = date
+            self.th.isRun = True
             self.start_Crawl.setDisabled(True)
             self.start_Crawl.setText("취소")
             self.th.start()
@@ -582,10 +683,6 @@ class Ui_MainWindow(QMainWindow):
             self.baemin.setText("취소됨")
             self.now_waiting.setText("취소됨")
             self.th.driver.close()
-            # print(driver)
-            # while driver is None:
-            #     driver = self.th.driver
-            # driver.close()
             self.start_Crawl.setText("시작")
 
             self.th.terminate()
@@ -596,6 +693,18 @@ class Ui_MainWindow(QMainWindow):
         for f in fname[0]:
             self.albam_list.addItem(f)
             self.albam_file_list.append(f)
+
+    def albam_fin(self):
+        if len(self.albam_file_list) == 0:
+            x = QMessageBox()
+            self.center()
+            x.about(self, "경고", "파일을 첨부해주세요!")
+            return
+        albam_pre(self.albam_file_list)
+        self.albam_file_list.clear()
+        x = QMessageBox()
+        self.center()
+        x.about(self, "완료", "완료되었습니다!")
 
     def albam_removeCurrentItem(self) :
         #ListWidget에서 현재 선택한 항목을 삭제할 때는 선택한 항목의 줄을 반환한 후, takeItem함수를 이용해 삭제합니다.
@@ -616,6 +725,27 @@ class Ui_MainWindow(QMainWindow):
         self.listView.takeItem(removeItemRow)
         self.saenggak_file_list.pop(removeItemRow)
 
+    def saenggak_fin(self):
+        if len(self.saenggak_file_list) == 0:
+            x = QMessageBox()
+            self.center()
+            x.about(self, "경고", "파일을 첨부해주세요!")
+            return
+        bool = concat(self.saenggak_file_list)
+        self.saenggak_file_list.clear()
+
+        self.listView.clear()
+
+        x = QMessageBox()
+        self.center()
+
+        if bool:
+            x.about(self, "완료", "매칭 안된 데이터가 존재합니다.")
+            cur = os.getcwd()
+            os.chdir(cur)
+            os.startfile(".\\data\\baemin\\not_matched.csv")
+        else:
+            x.about(self, "완료", "완료되었습니다!")
 
     def center(self):
         qr = self.frameGeometry()
@@ -623,11 +753,43 @@ class Ui_MainWindow(QMainWindow):
         qr.moveCenter(cp)
         self.move(qr.topLeft())
 
+    def sales_st(self):
+        dates = self.get_dates(self.sales_start, self.sales_end)
+        try:
+            df = menu_st(dates)
+            model = pandasModel(df)
+            self.tableView.setModel(model)
+        except Exception as err:
+            print(err)
 
-    def sales(self):
-        df = pd.read_csv("./statistic_code/알밤.csv", encoding='utf-8-sig')
+    def order_st(self):
+        dates = self.get_dates(self.order_start, self.order_end)
+        print(dates)
+
+    def delivery_st(self):
+        dates = self.get_dates(self.delivery_start, self.deliver_end)
+
+    def labor_st(self):
+        dates = self.get_dates(self.labor_start, self.labor_end)
+        df = albam_st(dates)
         model = pandasModel(df)
-        self.tableView.setModel(model)
+        self.tableView_3.setModel(model)
+
+    def get_dates(self, start, end):
+        start_date = list(map(int, start.text().split('-')))
+        end_date = list(map(int, end.text().split('-')))
+        start_date = datetime.datetime(start_date[0], start_date[1], start_date[2])
+        end_date = datetime.datetime(end_date[0], end_date[1], end_date[2])
+        date = []
+        if start_date > end_date:
+            x = QMessageBox()
+            self.center()
+            x.about(self, "오류", "날짜를 확인해주세요")
+            return
+        while start_date <= end_date:
+            date.append(start_date.strftime('%Y-%m-%d'))
+            start_date = start_date + datetime.timedelta(days=1)
+        return date
 
 if __name__ == "__main__":
     import sys

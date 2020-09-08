@@ -265,8 +265,8 @@
      <widget class="QPushButton" name="file_upload">
       <property name="geometry">
        <rect>
-        <x>810</x>
-        <y>310</y>
+        <x>830</x>
+        <y>320</y>
         <width>261</width>
         <height>41</height>
        </rect>
@@ -286,7 +286,7 @@
      <widget class="QPushButton" name="upload">
       <property name="geometry">
        <rect>
-        <x>950</x>
+        <x>970</x>
         <y>370</y>
         <width>121</width>
         <height>41</height>
@@ -406,7 +406,7 @@
      <widget class="QListView" name="listView">
       <property name="geometry">
        <rect>
-        <x>230</x>
+        <x>240</x>
         <y>270</y>
         <width>561</width>
         <height>201</height>
@@ -424,7 +424,7 @@
      <widget class="QPushButton" name="delete_2">
       <property name="geometry">
        <rect>
-        <x>810</x>
+        <x>830</x>
         <y>370</y>
         <width>121</width>
         <height>41</height>
@@ -446,7 +446,7 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>170</y>
+        <y>180</y>
         <width>212</width>
         <height>47</height>
        </rect>
@@ -472,8 +472,8 @@
      <widget class="QListView" name="albam_list">
       <property name="geometry">
        <rect>
-        <x>230</x>
-        <y>150</y>
+        <x>240</x>
+        <y>155</y>
         <width>561</width>
         <height>91</height>
        </rect>
@@ -490,8 +490,8 @@
      <widget class="QPushButton" name="albam_upload">
       <property name="geometry">
        <rect>
-        <x>810</x>
-        <y>150</y>
+        <x>830</x>
+        <y>155</y>
         <width>261</width>
         <height>41</height>
        </rect>
@@ -511,8 +511,8 @@
      <widget class="QPushButton" name="albam_upload_2">
       <property name="geometry">
        <rect>
-        <x>950</x>
-        <y>200</y>
+        <x>970</x>
+        <y>205</y>
         <width>121</width>
         <height>41</height>
        </rect>
@@ -532,8 +532,8 @@
      <widget class="QPushButton" name="albam_delete">
       <property name="geometry">
        <rect>
-        <x>810</x>
-        <y>200</y>
+        <x>830</x>
+        <y>205</y>
         <width>121</width>
         <height>41</height>
        </rect>
@@ -548,6 +548,40 @@
       </property>
       <property name="text">
        <string>삭제</string>
+      </property>
+     </widget>
+     <widget class="Line" name="line_2">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>140</y>
+        <width>1121</width>
+        <height>10</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>양재인장체M</family>
+        <pointsize>10</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+     <widget class="Line" name="line_3">
+      <property name="geometry">
+       <rect>
+        <x>219</x>
+        <y>0</y>
+        <width>21</width>
+        <height>501</height>
+       </rect>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
       </property>
      </widget>
     </widget>
