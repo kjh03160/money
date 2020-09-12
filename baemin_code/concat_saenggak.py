@@ -7,11 +7,16 @@ def concat(files):
     i=0
     for file in files:
         data[i] = pd.read_csv(file, encoding='CP949')
-        data[i].drop(['Unnamed: 19'], axis=1, inplace=True)
+        try:
+            data[i].drop(['Unnamed: 19'], axis=1, inplace=True)
+        except:
+            pass
         i += 1
 
     def find_match(data):
         data_date = data['진행시간'][0][:5].replace('/', '-')
+        if data_date[-1] == '-':
+            data_date = data['진행시간'][0][5:10].replace('/', '-')
         # 날짜 필터
         indexes = []
         for idx, row in baemin.iterrows():
@@ -47,6 +52,8 @@ def concat(files):
             else:
                 for i in row['요금요청']:
                     data_dt = f"{data.loc[i, '진행시간'][:5]} {data.loc[i, '요청시간']}"
+                    if data.loc[i, '진행시간'][:5][-1] == '-':
+                        data_dt = f"{data.loc[i, '진행시간'][5:10].replace('-', '/')} {data.loc[i, '요청시간']}"
                     FMT = '%m/%d %H:%M'
                     diff_calculated = abs(datetime.strptime(matched_dt, FMT) - datetime.strptime(data_dt, FMT))
                     tdiff[i] = diff_calculated

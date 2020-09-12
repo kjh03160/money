@@ -86,7 +86,6 @@ def baemin_7(driver, date):
 
         nav = driver.find_all_by_css("nav.Paging ul li")[-2]
 
-        print(nav.get_attribute("class"))
         if flag or nav.get_attribute("class") != "":
             break
         a = driver.find_by_tag_with_obj(nav, 'a')

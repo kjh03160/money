@@ -21,7 +21,7 @@ def service_st(dates):
         return False
 
     def method_stats(*l):
-        df = pd.DataFrame(0, index=['포장', '매장식사'], columns=['키오스크', '챗봇', '배달의민족', '총합', '비율'])
+        df = pd.DataFrame(0, index=['포장', '매장식사', '배달'], columns=['키오스크', '챗봇', '배달의민족', '총합', '비율'])
         for data in l:
             data.loc[data['수령방법'].isnull(), '수령방법'] = 'X'
             for idx, row in data.iterrows():
@@ -32,6 +32,9 @@ def service_st(dates):
                     elif method == '매장식사':
                         if str(row['주문번호'])[0]=='B': df.loc['매장식사', '배달의민족'] += 1
                         else: df.loc['매장식사', '키오스크'] += 1
+                    # elif method == '배달':
+                    #     if str(row['주문번호'])[0]=='B': df.loc['배달', '배달의민족'] += 1
+                    #     else: df.loc['배달', '키오스크'] += 1
         df.loc['포장', '총합'] = df.loc['포장'][:-2].sum()
         df.loc['매장식사', '총합'] = df.loc['매장식사'][:-2].sum()
         method_total = df['총합'].sum()

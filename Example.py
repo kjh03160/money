@@ -25,11 +25,10 @@ from statistic_code.menu import menu_st
 from statistic_code.service_statistic import service_st
 from statistic_code.deliver_st import deliver_st
 
-import datetime
-import pandas as pd
+from datetime import *
+
 import time
 import os
-
 class TestThread(QThread):
     # 쓰레드의 커스텀 이벤트
     # 데이터 전달 시 형을 명시해야 함
@@ -83,10 +82,6 @@ class TestThread(QThread):
         self.isRun = False
         now_data_merge()
 
-        x = QMessageBox()
-        self.main.center()
-        x.about(self.main, "완료", "완료되었습니다!")
-
 
 class pandasModel(QAbstractTableModel):
     def __init__(self, data):
@@ -114,7 +109,7 @@ class Ui_MainWindow(QMainWindow):
 
     def setupUi(self, MainWindow):
 
-        now = datetime.datetime.now()
+        now = datetime.now()
         year = now.year
         month = now.month
         day = now.day
@@ -561,9 +556,9 @@ class Ui_MainWindow(QMainWindow):
         self.labor_end.setDate(QtCore.QDate(year, month, day))
         self.labor_end.setObjectName("labor_end")
 
-        self.tableView0 = QtWidgets.QTableView(self.tab_4)
-        self.tableView0.setGeometry(QtCore.QRect(20, 50, 1101, 421))
-        self.tableView0.setObjectName("tableView")
+        # self.tableView0 = QtWidgets.QTableView(self.tab_4)
+        # self.tableView0.setGeometry(QtCore.QRect(20, 50, 1101, 421))
+        # self.tableView0.setObjectName("tableView")
         self.gridLayout_4.addWidget(self.labor_end, 0, 2, 1, 1)
 
         self.tabWidget.addTab(self.tab_4, "")
@@ -588,6 +583,7 @@ class Ui_MainWindow(QMainWindow):
         self.retranslateUi(MainWindow)
         self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+
 
         # 생각 데이터 완료 버튼 연결해야댐
         self.saenggak_file_list = []
@@ -673,6 +669,9 @@ class Ui_MainWindow(QMainWindow):
         else:
             self.baemin.setText(n + " 완료")
             self.now_waiting.setText(n + " 완료")
+            x = QMessageBox()
+            self.center()
+            x.about(self, "완료", "완료되었습니다!")
 
     @pyqtSlot()
     def threadStart(self):
@@ -710,6 +709,7 @@ class Ui_MainWindow(QMainWindow):
             x.about(self, "경고", "파일을 첨부해주세요!")
             return
         albam_pre(self.albam_file_list)
+        self.albam_list.clear()
         self.albam_file_list.clear()
         x = QMessageBox()
         self.center()
@@ -753,6 +753,7 @@ class Ui_MainWindow(QMainWindow):
             cur = os.getcwd()
             os.chdir(cur)
             os.startfile(".\\data\\baemin\\not_matched.csv")
+            os.startfile(".\\data\\baemin\\Accumulated_data.csv")
         else:
             x.about(self, "완료", "완료되었습니다!")
 
@@ -766,24 +767,21 @@ class Ui_MainWindow(QMainWindow):
         dates = self.get_dates(self.sales_start, self.sales_end)
         if dates is None:
             return
-        try:
-            df = menu_st(dates)
-            if not df:
-                x = QMessageBox()
-                self.center()
-                x.about(self, "오류", "데이터가 없습니다.")
-                return
-            model = pandasModel(df)
-            self.tableView.setModel(model)
-        except Exception as err:
-            print(err)
+        df = menu_st(dates)
+        if df is False:
+            x = QMessageBox()
+            self.center()
+            x.about(self, "오류", "데이터가 없습니다.")
+            return
+        model = pandasModel(df)
+        self.tableView.setModel(model)
 
     def order_st(self):
         dates = self.get_dates(self.order_start, self.order_end)
         if dates is None:
             return
         df = service_st(dates)
-        if not df:
+        if df is False:
             x = QMessageBox()
             self.center()
             x.about(self, "오류", "데이터가 없습니다.")
@@ -798,7 +796,7 @@ class Ui_MainWindow(QMainWindow):
             return
 
         df = deliver_st(dates)
-        if not df:
+        if df is False:
             x = QMessageBox()
             self.center()
             x.about(self, "오류", "데이터가 없습니다.")
@@ -807,11 +805,12 @@ class Ui_MainWindow(QMainWindow):
         self.tableView_2.setModel(model)
 
     def labor_st(self):
+
         dates = self.get_dates(self.labor_start, self.labor_end)
         if dates is None:
             return
         df = albam_st(dates)
-        if not df:
+        if df is False:
             x = QMessageBox()
             self.center()
             x.about(self, "오류", "데이터가 없습니다.")
@@ -822,8 +821,8 @@ class Ui_MainWindow(QMainWindow):
     def get_dates(self, start, end):
         start_date = list(map(int, start.text().split('-')))
         end_date = list(map(int, end.text().split('-')))
-        start_date = datetime.datetime(start_date[0], start_date[1], start_date[2])
-        end_date = datetime.datetime(end_date[0], end_date[1], end_date[2])
+        start_date = datetime(start_date[0], start_date[1], start_date[2])
+        end_date = datetime(end_date[0], end_date[1], end_date[2])
         date = []
         if start_date > end_date:
             x = QMessageBox()
@@ -832,7 +831,7 @@ class Ui_MainWindow(QMainWindow):
             return
         while start_date <= end_date:
             date.append(start_date.strftime('%Y-%m-%d'))
-            start_date = start_date + datetime.timedelta(days=1)
+            start_date = start_date + timedelta(days=1)
         return date
 
 if __name__ == "__main__":
@@ -843,4 +842,6 @@ if __name__ == "__main__":
     ui.setupUi(MainWindow)
     MainWindow.show()
     sys.exit(app.exec_())
+    input()
+
 
