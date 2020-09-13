@@ -1,14 +1,15 @@
 import pandas as pd
 from datetime import datetime
 
+
 def df_in_dates(df, dates):
     start_date = datetime.strptime(dates[0], '%Y-%m-%d')
     end_date = datetime.strptime(dates[-1], '%Y-%m-%d') if len(dates) > 1 else start_date
     filtered = df.loc[(df['주문시각'] >= start_date) & (df['주문시각'] <= end_date)]
     return filtered
 
-def menu_st(dates):
 
+def menu_st(dates):
     nw = pd.read_csv('./data/now_waiting/Accumulated_data.csv', encoding='utf-8-sig')
     bm = pd.read_csv('./data/baemin/Accumulated_data.csv', encoding='utf-8-sig')
 
@@ -18,18 +19,18 @@ def menu_st(dates):
     nw = df_in_dates(nw, dates)
     bm = df_in_dates(bm, dates)
 
-    if len(nw) == 0 or len(bm) == 0:
+    if len(nw) == 0 and len(bm) == 0:
         return False
 
     index1 = pd.MultiIndex.from_product([['샐러드', '메인추가'], ['목살', '닭가슴살', '숲속', '연어']])
-    index2 = pd.MultiIndex.from_tuples([('샐러드', '이너프'),('extra','고구마'),('extra','계란'),('드레싱','발사믹'),('드레싱','오리엔탈'),('드레싱','렌치')])
+    index2 = pd.MultiIndex.from_tuples(
+        [('샐러드', '이너프'), ('extra', '고구마'), ('extra', '계란'), ('드레싱', '발사믹'), ('드레싱', '오리엔탈'), ('드레싱', '렌치')])
     columns = ['배달의민족', '키오스크', '챗봇', '현금', '총합', '비율']
 
     frame = pd.DataFrame(None, index=index1, columns=columns)
     frame = frame + pd.DataFrame(None, index=index2, columns=columns)
     frame.fillna(0, inplace=True)
     frame = frame.sort_index(ascending=False)
-
 
     def fill_stats(*dfs):
         df = frame.copy()
@@ -39,10 +40,11 @@ def menu_st(dates):
                 if row['결제방법'] == '바로결제':
                     method = '배달의민족'
                 elif row['결제방법'] == '만나서결제':
-                    method = '현금'
-                elif row['결제방법'] == 'onsite':
+                    method = '배달의민족'
+                elif row['서비스타입'] == '나우웨이팅 POS':
                     method = '키오스크'
-
+                elif row['서비스타입'] == '챗봇':
+                    method = '챗봇'
                 # 샐러드 칼럼
                 for item in row['항목'].split(', '):
                     if '이너프' in item:
@@ -61,32 +63,43 @@ def menu_st(dates):
                     for item in row['추가선택'].split(', '):
                         if '고구마' in item:
                             if 'X' in item:
-                                df.loc[('extra', '고구마'), method] -= 1
+                                #                                 df.loc[('extra', '고구마'), method] -= 1
+                                pass
+
                             else:
                                 df.loc[('extra', '고구마'), method] += 1
-                        elif '계란' in item:
+                        elif '계란' in item or '삶은달걀' in item:
                             if 'X' in item:
-                                df.loc[('extra', '계란'), method] -= 1
+                                #                                 df.loc[('extra', '계란'), method] -= 1
+                                pass
+
                             else:
                                 df.loc[('extra', '계란'), method] += 1
                         elif '목살' in item:
                             if 'X' in item:
-                                df.loc[('메인추가', '목살'), method] -= 1
+                                #                                 df.loc[('메인추가', '목살'), method] -= 1
+                                pass
+
                             else:
                                 df.loc[('메인추가', '목살'), method] += 1
                         elif '닭가슴살' in item:
                             if 'X' in item:
-                                df.loc[('메인추가', '닭가슴살'), method] -= 1
+                                #                                 df.loc[('메인추가', '닭가슴살'), method] -= 1
+                                pass
+
                             else:
                                 df.loc[('메인추가', '닭가슴살'), method] += 1
                         elif '숲속' in item:
                             if 'X' in item:
-                                df.loc[('메인추가', '숲속'), method] -= 1
+                                #                                 df.loc[('메인추가', '숲속'), method] -= 1
+                                pass
+
                             else:
                                 df.loc[('메인추가', '숲속'), method] += 1
                         elif '연어' in item:
                             if 'X' in item:
-                                df.loc[('메인추가', '연어'), method] -= 1
+                                #                                 df.loc[('메인추가', '연어'), method] -= 1
+                                pass
                             else:
                                 df.loc[('메인추가', '연어'), method] += 1
 
@@ -95,27 +108,36 @@ def menu_st(dates):
                     for item in row['드레싱'].split(', '):
                         if '발사믹' in item:
                             if 'X' in item:
-                                df.loc[('드레싱', '발사믹'), method] -= 1
+                                #                                 df.loc[('드레싱', '발사믹'), method] -= 1
+                                pass
+
                             else:
                                 df.loc[('드레싱', '발사믹'), method] += 1
                         elif '오리엔탈' in item:
                             if 'X' in item:
-                                df.loc[('드레싱', '오리엔탈'), method] -= 1
+                                #                                 df.loc[('드레싱', '오리엔탈'), method] -= 1
+                                pass
+
                             else:
                                 df.loc[('드레싱', '오리엔탈'), method] += 1
                         elif '렌치' in item:
                             if 'X' in item:
-                                df.loc[('드레싱', '렌치'), method] -= 1
+                                #                                 df.loc[('드레싱', '렌치'), method] -= 1
+                                pass
+
                             else:
                                 df.loc[('드레싱', '렌치'), method] += 1
 
         # 총합 칼럼
         df['총합'] = df.sum(axis=1)
+
         # 비율 칼럼
         salads = df.loc['샐러드', '총합'].sum()
         toppings = df.loc['메인추가', '총합'].sum()
         extras = df.loc['extra', '총합'].sum()
         dressings = df.loc['드레싱', '총합'].sum()
+        df = df.fillna(0)
+
         for idx in df.index:
             pair = (idx[0], idx[1])
             if idx[0] == '샐러드':
@@ -140,9 +162,6 @@ def menu_st(dates):
         else:
             menu_stats.iloc[i, 0] = ""
 
-    menu_stats = menu_stats.rename(columns={'Unnamed: 0':'종류',
-                                     'Unnamed: 1':'메뉴'})
+    menu_stats = menu_stats.rename(columns={'Unnamed: 0': '종류',
+                                            'Unnamed: 1': '메뉴'})
     return menu_stats
-
-if __name__ == '__main__':
-    print(menu_st(['2020-08-25', '2020-08-26']))

@@ -1,6 +1,6 @@
 import pandas as pd
 from datetime import datetime
-
+import locale
 def df_in_dates(df, dates):
     start_date = datetime.strptime(dates[0], '%Y-%m-%d')
     end_date = datetime.strptime(dates[-1], '%Y-%m-%d') if len(dates) > 1 else start_date
@@ -65,6 +65,7 @@ def deliver_st(dates):
 
     df.loc['차액'] = baemin_actual_diff
     df.loc['차액', '총합'] = round(df.loc['차액'].sum())
+    df = df.applymap('{:,}'.format)
 
     df = df.reset_index()
     df = df.rename(columns={"index": "구분"})

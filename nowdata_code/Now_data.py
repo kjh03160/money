@@ -16,7 +16,7 @@ def now_data_merge():
 
     target = pd.read_csv('./data/baemin/Accumulated_data.csv')
 
-    cols = ['id','serving_type', 'amount', 'amount_to_pay', 'user_comment']
+    cols = ['id', 'source_type', 'serving_type', 'amount', 'amount_to_pay', 'user_comment']
     df = now_waiting[cols]
     df = df.rename(columns={'id':'주문번호',
                                      'source_type':'서비스타입',
@@ -65,15 +65,15 @@ def now_data_merge():
 
     df[['수령방법', '항목', '추가선택', '드레싱']] = now_waiting.apply(lambda row: pd.Series(get_order_details(row['order_items'])), axis=1)
     df[['주문시각']] = now_waiting.apply(lambda row: pd.Series(get_timestamps(row['timestamps'])), axis=1)
-
     target_cols = target.columns
     df['주소'] = 'X'
     df['배달팁'] = 0
-    df['서비스타입'] = '나우웨이팅 POS'
+    df.loc[df['서비스타입'] == 'from_kakao', '서비스타입'] = '챗봇'
+    df.loc[df['서비스타입'] == 'from_kiosk', '서비스타입'] = '나우웨이팅 POS'
+    df.loc[df['서비스타입'] == 'from_nw_pos', '서비스타입'] = '나우웨이팅 POS'
     df['접수시각'] =  None
     df['배달시각'] =  None
     df['배달요청사항'] =  None
     df['실제배달료'] = None
     df = df[target_cols]
-
-    with open('./data/baemin/Accumulated_data.csv', 'a') as old_file: df.to_csv('./data/now_waiting/Accumulated_data.csv', index=False, encoding='utf-8-sig')
+    with open('./data/baemin/Accumulated_data.csv', 'a') as old_file: df.to_csv('./data/now_waiting/Accumulated_data2.csv', index=False, encoding='utf-8-sig')
