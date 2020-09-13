@@ -40,12 +40,12 @@ def albam_st(dates):
             mins -= 60
 
         gross_salary = computed[computed['직원명'] == name]['총급여'].sum()
-        insurance = gross_salary * 0.009628
+        insurance = gross_salary * 0.09799
 
         df.loc[df['직원명'] == name, '근무시간'] = f"{hrs}시간 {mins}분"
-        df.loc[df['직원명'] == name, '세전급여'] = str(gross_salary).split('.')[0] + " 원"
-        df.loc[df['직원명'] == name, '4대보험'] = str(round(insurance, 0)).split('.')[0] + " 원"
-        df.loc[df['직원명'] == name, '세후급여'] = str(round(gross_salary - insurance)).split('.')[0] + " 원"
+        df.loc[df['직원명'] == name, '세전급여'] = "{:,}".format(int(gross_salary)) + " 원"
+        df.loc[df['직원명'] == name, '4대보험'] = "{:,}".format(int(round(insurance, 0))) + " 원"
+        df.loc[df['직원명'] == name, '세후급여'] = "{:,}".format(int(round(gross_salary - insurance))) + " 원"
 
     col = ['직원명', '근무시간', '세전급여', '4대보험', '세후급여']
     df = df.sort_values(by=['근무시간'], ascending=False)

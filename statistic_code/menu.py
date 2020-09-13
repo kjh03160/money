@@ -37,10 +37,10 @@ def menu_st(dates):
         method = None
         for data in dfs:
             for idx, row in data.iterrows():
-                if row['결제방법'] == '바로결제':
+                if row['결제방법'] == '바로결제' or row['결제방법'] == '만나서결제':
                     method = '배달의민족'
-                elif row['결제방법'] == '만나서결제':
-                    method = '배달의민족'
+                elif row['서비스타입'] == '현금':
+                    method = '현금'
                 elif row['서비스타입'] == '나우웨이팅 POS':
                     method = '키오스크'
                 elif row['서비스타입'] == '챗봇':

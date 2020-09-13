@@ -28,14 +28,14 @@ def deliver_st(dates):
         for address in row['주소'].split():
             if '동' in address:
                 if address in count:
-                    baemin_delivery_tip[address] += row['배달팁']
-                    actual_delivery_tip[address] += row['실제배달료']
-                    food_price[address] += row['주문금액']
+                    baemin_delivery_tip[address] += int(row['배달팁'])
+                    actual_delivery_tip[address] += int(row['실제배달료'])
+                    food_price[address] += int(row['주문금액'])
                     count[address] += 1
                 else:
-                    baemin_delivery_tip[address] = row['배달팁']
-                    actual_delivery_tip[address] = row['실제배달료']
-                    food_price[address] = row['주문금액']
+                    baemin_delivery_tip[address] = int(row['배달팁'])
+                    actual_delivery_tip[address] = int(row['실제배달료'])
+                    food_price[address] = int(row['주문금액'])
                     count[address] = 1
 
     # print(baemin_delivery_tip, actual_delivery_tip, food_price)
@@ -55,17 +55,18 @@ def deliver_st(dates):
         return df
     col_num = len(df.columns) - 1
     df.loc['배민배달팁'] = baemin_delivery_tip
-    df.loc['배민배달팁', '총합'] = round(df.loc['배민배달팁'].sum())
+    df.loc['배민배달팁', '총합'] = int(round(df.loc['배민배달팁'].sum()))
 
     df.loc['실제배달료'] = actual_delivery_tip
-    df.loc['실제배달료', '총합'] = round(df.loc['실제배달료'].sum())
+    df.loc['실제배달료', '총합'] = int(round(df.loc['실제배달료'].sum()))
 
     df.loc['음식값'] = food_price
-    df.loc['음식값', '총합'] = round(df.loc['음식값'].sum())
+    df.loc['음식값', '총합'] = int(round(df.loc['음식값'].sum()))
 
     df.loc['차액'] = baemin_actual_diff
-    df.loc['차액', '총합'] = round(df.loc['차액'].sum())
-    df = df.applymap('{:,}'.format)
+    df.loc['차액', '총합'] = int(round(df.loc['차액'].sum()))
+    df = df.astype(int)
+    df = df.applymap('{:,d} 원'.format)
 
     df = df.reset_index()
     df = df.rename(columns={"index": "구분"})
