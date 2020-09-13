@@ -1,6 +1,8 @@
 import pandas as pd
 from datetime import datetime
 import locale
+
+
 def df_in_dates(df, dates):
     start_date = datetime.strptime(dates[0], '%Y-%m-%d')
     end_date = datetime.strptime(dates[-1], '%Y-%m-%d') if len(dates) > 1 else start_date
@@ -47,13 +49,17 @@ def deliver_st(dates):
     baemin_actual_diff = dict((k, baemin_delivery_tip[k] - actual_delivery_tip[k]) for k in baemin_delivery_tip)
 
     columns = list(count.keys()) + ['총합']
-    df = pd.DataFrame(0, index=['배민배달팁', '실제배달료', '차액', '음식값'], columns=columns)
+    df = pd.DataFrame(0, index=['건수', '배민배달팁', '실제배달료', '차액', '음식값', '음식값비율'], columns=columns)
+
+
 
     if len(data) == 0:
         df = df.reset_index()
         df = df.rename(columns={"index": "구분"})
         return df
     col_num = len(df.columns) - 1
+
+
     df.loc['배민배달팁'] = baemin_delivery_tip
     df.loc['배민배달팁', '총합'] = int(round(df.loc['배민배달팁'].sum()))
 
@@ -66,7 +72,18 @@ def deliver_st(dates):
     df.loc['차액'] = baemin_actual_diff
     df.loc['차액', '총합'] = int(round(df.loc['차액'].sum()))
     df = df.astype(int)
-    df = df.applymap('{:,d} 원'.format)
+    df = df.applymap('{:,} 원'.format)
+
+    # df = df.loc['건수'].applymap('{:,d} 건'.format)
+    df.loc['음식값비율'] = df.loc['음식값'].apply(lambda row: f'{round((int(row[:-2].replace(",", "")) / int(df.loc["음식값", "총합"][:-2].replace(",", ""))) * 100, 2)} %')
+
+
+    temp = count.copy()
+    keys = count.keys()
+    for x in keys:
+        count[x] = "%d 건" % count[x]
+    df.loc['건수'] = count
+    df.loc['건수', '총합'] = "%d 건" % int(sum(temp.values()))
 
     df = df.reset_index()
     df = df.rename(columns={"index": "구분"})

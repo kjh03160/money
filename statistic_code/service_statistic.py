@@ -21,18 +21,20 @@ def service_st(dates):
         return False
 
     def method_stats(*l):
-        df = pd.DataFrame(0, index=['포장', '매장식사', '배달'], columns=['키오스크', '챗봇', '배달의민족', '총합', '비율'])
+        df = pd.DataFrame(0, index=['포장', '매장식사'], columns=['키오스크', '챗봇', '배달의민족', '총합', '비율'])
         for data in l:
             data.loc[data['수령방법'].isnull(), '수령방법'] = 'X'
+            data.loc[data['수령방법']=='배달', '수령방법'] = '포장'
             for idx, row in data.iterrows():
+                order_count = len(row['항목'].split(','))
                 for method in row['수령방법'].replace(',','').split():
                     if method=='포장':
-                        if str(row['주문번호'])[0]=='B': df.loc['포장', '배달의민족'] += len(row['항목'].split(', '))
-                        elif row['서비스타입'] == '챗봇': df.loc['포장', '챗봇'] += len(row['항목'].split(', '))
-                        else: df.loc['포장', '키오스크'] += len(row['항목'].split(', '))
+                        if str(row['주문번호'])[0]=='B': df.loc['포장', '배달의민족'] += order_count
+                        elif row['서비스타입'] == '챗봇': df.loc['포장', '챗봇'] += order_count
+                        else: df.loc['포장', '키오스크'] += order_count
                     elif method == '매장식사':
-                        if str(row['주문번호'])[0]=='B': df.loc['매장식사', '배달의민족'] += len(row['항목'].split(', '))
-                        else: df.loc['매장식사', '키오스크'] += len(row['항목'].split(', '))
+                        if str(row['주문번호'])[0]=='B': df.loc['매장식사', '배달의민족'] += order_count
+                        else: df.loc['매장식사', '키오스크'] += order_count
                     # elif method == '배달':
                     #     if str(row['주문번호'])[0]=='B': df.loc['배달', '배달의민족'] += 1
                     #     else: df.loc['배달', '키오스크'] += 1
