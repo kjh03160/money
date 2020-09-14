@@ -30,11 +30,11 @@ def service_st(dates):
                 for method in row['수령방법'].replace(',','').split():
                     if method=='포장':
                         if str(row['주문번호'])[0]=='B': df.loc['포장', '배달의민족'] += order_count
-                        elif row['서비스타입'] == '챗봇': df.loc['포장', '챗봇'] += order_count
-                        else: df.loc['포장', '키오스크'] += order_count
+                        elif row['서비스타입'] == '챗봇': df.loc['포장', '챗봇'] += 1
+                        else: df.loc['포장', '키오스크'] += 1
                     elif method == '매장식사':
                         if str(row['주문번호'])[0]=='B': df.loc['매장식사', '배달의민족'] += order_count
-                        else: df.loc['매장식사', '키오스크'] += order_count
+                        else: df.loc['매장식사', '키오스크'] += 1
                     # elif method == '배달':
                     #     if str(row['주문번호'])[0]=='B': df.loc['배달', '배달의민족'] += 1
                     #     else: df.loc['배달', '키오스크'] += 1

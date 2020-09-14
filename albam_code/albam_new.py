@@ -7,8 +7,14 @@ def albam_pre(files):
         xls = pd.ExcelFile(file)
         albam_new = pd.read_excel(xls, '일별 근무기록 및 급여', header=5)
         columns = ['직원명', '출근 체크 날짜', '기준급여', '근무인정시간\n(B-A)-C', '기본 급여', '주휴수당']
-        employee_info = pd.read_excel(xls, '기간별 급여 통계', header=19)
-        gets_joohue = {}.fromkeys(employee_info['직원명'].unique(), '-')
+        h = 17
+        while True:
+            try:
+                employee_info = pd.read_excel(xls, '기간별 급여 통계', header=h)
+                gets_joohue = {}.fromkeys(employee_info['직원명'].unique(), '-')
+                break
+            except:
+                h += 1
         employees = gets_joohue.keys()
         for name in employees:
             gets_joohue[name] = employee_info.loc[employee_info['직원명']==name, '계약상\n주휴수당 대상'].values[0]

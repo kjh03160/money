@@ -25,9 +25,8 @@ def concat(files):
         all_matches = baemin.iloc[indexes]
         all_matches['배달요청사항'] = all_matches['배달요청사항'].str.replace(",", "")
         all_matches['요금요청'] = all_matches.apply(
-            lambda row: data.loc[(row['결제금액'] == data['음식요금']) & (row['배달요청사항'] == data['기타'])].index.values,
+            lambda row: data.loc[(row['결제금액'] == data['음식요금']) & (row['배달요청사항'] == data['기타'].str.lstrip(": "))].index.values,
             axis=1)
-
         matched = all_matches.copy()
         non_matched = all_matches.copy()
         non_matched_saenggak = data.copy()
@@ -74,6 +73,7 @@ def concat(files):
         c.append(non_matched_saenggak)
 
     matched = pd.concat(a, axis=0, ignore_index=True)
+    print(matched)
     matched.drop(['요금요청', '최소시간차'], axis=1, inplace=True)
     prev = pd.read_csv('./data/baemin/Accumulated_data.csv')
     df = pd.concat([prev, matched], sort=False)

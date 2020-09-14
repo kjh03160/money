@@ -65,10 +65,11 @@ def menu_st(dates):
                             if 'X' in item:
                                 #                                 df.loc[('extra', '고구마'), method] -= 1
                                 pass
-
+                            elif '100' in item:
+                                df.loc[('extra', '고구마'), method] += 2
                             else:
                                 df.loc[('extra', '고구마'), method] += 1
-                        elif '계란' in item or '삶은달걀' in item:
+                        elif '계란' in item or '삶은 달걀' in item or '삶은' in item:
                             if 'X' in item:
                                 #                                 df.loc[('extra', '계란'), method] -= 1
                                 pass

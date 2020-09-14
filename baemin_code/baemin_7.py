@@ -28,8 +28,8 @@ def baemin_7(driver, date):
                 break
 
             if order_time != rq:
-                if (order_time - rq).days > 1:
-                    break
+                # if (order_time - rq).days > 3:
+                #     break
                 continue
 
             order = driver.find_by_css_with_obj(row, "a")
@@ -55,11 +55,15 @@ def baemin_7(driver, date):
                     elif '추가' in tr.text:
                         temp['추가선택'].append((tr.text.strip().split(" 추가")[0][2:]))
                 else:
-                    item_ = driver.find_by_tag_with_obj(tr, "td").text
+                    tds = driver.find_all_by_tag_with_obj(tr, "td")
+                    item_ = tds[0].text.strip()
+                    count = int(tds[2].text.strip())
                     if '추가' in item_:
-                        temp['드레싱'].append(item_.split()[1])
+                        for _ in range(count):
+                            temp['드레싱'].append(' '.join(item_.split()[1:3]))
                     else:
-                        temp['항목'].append(item_)
+                        for _ in range(count):
+                            temp['항목'].append(item_)
 
             temp['수령방법'] = driver.find_by_tag_with_obj(trs2[0], "td").text
             temp['결제방법'] = driver.find_by_tag_with_obj(trs2[1], "td").text.split(" | ")[0]
