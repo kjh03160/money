@@ -45,7 +45,7 @@ def albam_st(dates):
         name = row['직원명']
         hrs = computed[computed['직원명'] == name]['근무hrs'].sum()
         mins = computed[computed['직원명'] == name]['근무mins'].sum()
-        if mins > 60:
+        while mins > 60:
             hrs += 1
             mins -= 60
 
