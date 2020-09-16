@@ -16,7 +16,7 @@ def baemin_7(driver, date):
         trs = driver.find_all_by_css("tbody tr")
 
         for row in trs:
-            order_date = driver.find_by_css_with_obj(row, "td:nth-child(2)").text
+            order_date = driver.find_by_css_with_obj(row, "td:nth-child(2)").text[4:]
             test = order_date.replace(".", '')
             test = list(map(int, test.split()[:3]))
 
@@ -48,16 +48,20 @@ def baemin_7(driver, date):
             temp['주문시각'] = text_.replace(". ", "-")
             trs = driver.find_all_by_tag_with_obj(tbodys[0], "tr")
 
+            count = 1
+
             for tr in trs:
+                tds = driver.find_all_by_tag_with_obj(tr, "td")
                 if tr.get_attribute('class'):
                     if '드레싱' in tr.text:
-                        temp['드레싱'].append(tr.text.strip().split()[1])
+                        for _ in range(count):
+                            temp['드레싱'].append(tr.text.strip().split()[1])
                     elif '추가' in tr.text:
-                        temp['추가선택'].append((tr.text.strip().split(" 추가")[0][2:]))
+                        for _ in range(count):
+                            temp['추가선택'].append((tr.text.strip().split(" 추가")[0][2:]))
                 else:
-                    tds = driver.find_all_by_tag_with_obj(tr, "td")
-                    item_ = tds[0].text.strip()
                     count = int(tds[2].text.strip())
+                    item_ = tds[0].text.strip()
                     if '추가' in item_:
                         for _ in range(count):
                             temp['드레싱'].append(' '.join(item_.split()[1:3]))
