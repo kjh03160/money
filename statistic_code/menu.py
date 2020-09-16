@@ -36,6 +36,7 @@ def menu_st(dates):
         df = frame.copy()
         method = None
         for data in dfs:
+            data['항목'] = data['항목'] .fillna("")
             for idx, row in data.iterrows():
                 if row['결제방법'] == '바로결제' or row['결제방법'] == '만나서결제':
                     method = '배달의민족'

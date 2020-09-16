@@ -24,6 +24,7 @@ def service_st(dates):
         df = pd.DataFrame(0, index=['포장', '매장식사'], columns=['키오스크', '챗봇', '배달의민족', '총합', '비율'])
         for data in l:
             data.loc[data['수령방법'].isnull(), '수령방법'] = 'X'
+            data.loc[data['항목'].isnull(), '항목'] = ''
             data.loc[data['수령방법']=='배달', '수령방법'] = '포장'
             for idx, row in data.iterrows():
                 order_count = len(row['항목'].split(','))
