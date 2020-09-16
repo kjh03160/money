@@ -25,7 +25,7 @@ def concat(files):
         all_matches = baemin.iloc[indexes]
         all_matches['배달요청사항'] = all_matches['배달요청사항'].str.replace(",", "")
         all_matches['요금요청'] = all_matches.apply(
-            lambda row: data.loc[(row['결제금액'] == data['음식요금']) & (row['배달요청사항'] == data['기타'].str.lstrip(": "))].index.values,
+            lambda row: data.loc[(row['결제금액'] == data['음식요금']) & ((row['배달요청사항'] == data['기타'].str.lstrip(": ")) | (row['요청사항'] == data['기타'].str.lstrip(": ")))].index.values,
             axis=1)
         matched = all_matches.copy()
         non_matched = all_matches.copy()
@@ -44,7 +44,8 @@ def concat(files):
         matched_idx = []
 
         for idx, row in matched.iterrows():
-            matched_dt = min([row['주문시각'], row['접수시각']])[5:-3].replace('-', '/')
+            # print(min([row['주문시각'], row['접수시각']])[5:])
+            matched_dt = min([row['주문시각'], row['접수시각']])[5:].replace('-', '/')
             tdiff = {}.fromkeys(row['요금요청'].tolist(), 0)
             if len(row['요금요청']) == 1:
                 best_match = row['요금요청'][0]
@@ -53,6 +54,7 @@ def concat(files):
                     data_dt = f"{data.loc[i, '진행시간'][:5]} {data.loc[i, '요청시간']}"
                     if data.loc[i, '진행시간'][:5][-1] == '-':
                         data_dt = f"{data.loc[i, '진행시간'][5:10].replace('-', '/')} {data.loc[i, '요청시간']}"
+                    # print(data_dt, matched_dt)
                     FMT = '%m/%d %H:%M'
                     diff_calculated = abs(datetime.strptime(matched_dt, FMT) - datetime.strptime(data_dt, FMT))
                     tdiff[i] = diff_calculated
@@ -73,12 +75,12 @@ def concat(files):
         c.append(non_matched_saenggak)
 
     matched = pd.concat(a, axis=0, ignore_index=True)
-    print(matched)
-    matched.drop(['요금요청', '최소시간차'], axis=1, inplace=True)
-    prev = pd.read_csv('./data/baemin/Accumulated_data.csv')
-    df = pd.concat([prev, matched], sort=False)
-    df = df.drop_duplicates(['주문번호'], keep='last').sort_values(by=['주문시각'], ascending=False)
-    df.to_csv('./data/baemin/Accumulated_data.csv', index=False, encoding='utf-8-sig')
+    if len(matched):
+        matched.drop(['요금요청', '최소시간차'], axis=1, inplace=True)
+        prev = pd.read_csv('./data/baemin/Accumulated_data.csv')
+        df = pd.concat([prev, matched], sort=False)
+        df = df.drop_duplicates(['주문번호'], keep='last').sort_values(by=['주문시각'], ascending=False)
+        df.to_csv('./data/baemin/Accumulated_data.csv', index=False, encoding='utf-8-sig')
 
     not_matched = pd.concat(b, axis=0, ignore_index=True)
     not_matched.to_csv("./data/baemin/not_matched.csv", index=False, encoding='utf-8-sig')
