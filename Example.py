@@ -81,6 +81,8 @@ class TestThread(QThread):
         self.main.start_Crawl.setText("시작")
         self.isRun = False
         now_data_merge()
+        self.threadEvent.emit("완료")
+
 
 
 class pandasModel(QAbstractTableModel):
@@ -666,9 +668,10 @@ class Ui_MainWindow(QMainWindow):
         elif '수집' in n:
             self.baemin.setText(n)
             self.now_waiting.setText(n)
-        else:
+        elif '-' in n:
             self.baemin.setText(n + " 완료")
             self.now_waiting.setText(n + " 완료")
+        else:
             x = QMessageBox()
             self.center()
             x.about(self, "완료", "완료되었습니다!")
