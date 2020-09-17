@@ -72,7 +72,6 @@ def albam_st(dates):
             df.loc[df['직원명'] == name, '주휴수당'] = "{:,}".format(df.loc[df['직원명'] == name, '주휴수당'].values[0]) + " 원"
     col = ['직원명', '주휴수당 여부', '근무시간', '세전급여', '주휴수당', '4대보험', '세후급여']
     df = df.sort_values(by=['근무시간'], ascending=False)
-    # df[col].to_csv('알밤.csv', index=False, encoding='utf-8-sig')
     return df[col]
 
 

@@ -25,7 +25,7 @@ def concat(files):
         all_matches = baemin.iloc[indexes]
         all_matches['배달요청사항'] = all_matches['배달요청사항'].str.replace(",", "")
         all_matches['요금요청'] = all_matches.apply(
-            lambda row: data.loc[(row['결제금액'] == data['음식요금']) & ((row['배달요청사항'] == data['기타'].str.lstrip(": ")) | (row['요청사항'] == data['기타'].str.lstrip(": ")))].index.values,
+            lambda row: data.loc[(row['결제금액'] == data['음식요금']) & ((row['배달요청사항'] == data['기타'].astype(str).str.lstrip(": ")) | (row['요청사항'] == data['기타'].astype(str).str.lstrip(": ")))].index.values,
             axis=1)
         matched = all_matches.copy()
         non_matched = all_matches.copy()
@@ -54,7 +54,6 @@ def concat(files):
                     data_dt = f"{data.loc[i, '진행시간'][:5]} {data.loc[i, '요청시간']}"
                     if data.loc[i, '진행시간'][:5][-1] == '-':
                         data_dt = f"{data.loc[i, '진행시간'][5:10].replace('-', '/')} {data.loc[i, '요청시간']}"
-                    # print(data_dt, matched_dt)
                     FMT = '%m/%d %H:%M'
                     diff_calculated = abs(datetime.strptime(matched_dt, FMT) - datetime.strptime(data_dt, FMT))
                     tdiff[i] = diff_calculated

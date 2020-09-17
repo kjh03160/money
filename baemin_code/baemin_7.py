@@ -99,7 +99,6 @@ def baemin_7(driver, date):
         a = driver.find_by_tag_with_obj(nav, 'a')
         driver.click(a)
         time.sleep(0.2)
-        # nav = driver.find_all_by_css("nav.Paging ul li")[-2]
 
 
     df = pd.DataFrame(result)

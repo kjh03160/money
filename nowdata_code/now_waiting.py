@@ -18,19 +18,4 @@ def now_waiting(driver, date):
         else:
             break
 
-
-    # import pandas as pd
-    # with open('data/dummy.json', 'r', encoding='UTF-8')as file:
-    #     x = json.load(file)['data']['orders']
-    #     if len(x) == 0:
-    #         print("주문 내역이 없습니다.")
-    #         return driver
-    #
-    #     with open('data/now_waiting/' + date + '.json', 'w', encoding='UTF-8') as file2:
-    #         file2.write(x)
-    #
-    #
-    #     df = pd.DataFrame(x)
-    #     df.to_csv('data/now_waiting/' + date + '.csv', index=False, mode='w', encoding='utf-8-sig')
-
     return driver
