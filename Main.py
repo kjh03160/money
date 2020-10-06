@@ -14,7 +14,7 @@ from PyQt5.QtCore import QAbstractTableModel, Qt
 from selenium_class import Driver
 
 from baemin_code.baemin_main import baemin_main
-from baemin_code.concat_saenggak import concat
+from baemin_code.concat_moa import concat
 from nowdata_code.now_waiting_main import now_waiting_main
 from albam_code.albam_new import albam_pre
 
