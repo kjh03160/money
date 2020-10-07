@@ -588,10 +588,10 @@ class Ui_MainWindow(QMainWindow):
 
 
         # 생각 데이터 완료 버튼 연결해야댐
-        self.saenggak_file_list = []
-        self.file_upload.clicked.connect(self.saenggak_file)
-        self.delete_2.clicked.connect(self.saenggak_removeCurrentItem)
-        self.upload.clicked.connect(self.saenggak_fin)
+        self.moa_file_list = []
+        self.file_upload.clicked.connect(self.moa_file)
+        self.delete_2.clicked.connect(self.moa_removeCurrentItem)
+        self.upload.clicked.connect(self.moa_fin)
 
 
         # 알밤 데이터 완료 버튼 연결해야댐
@@ -625,7 +625,7 @@ class Ui_MainWindow(QMainWindow):
         self.file_upload.setText(_translate("MainWindow", "파일 첨부"))
         self.upload.setText(_translate("MainWindow", "완료"))
         self.label_5.setText(_translate("MainWindow", "크롤링"))
-        self.label_6.setText(_translate("MainWindow", "생각대로 데이터 첨부"))
+        self.label_6.setText(_translate("MainWindow", "배달료 데이터 첨부"))
         self.delete_2.setText(_translate("MainWindow", "삭제"))
         self.label_4.setText(_translate("MainWindow", "알밤"))
         self.albam_upload.setText(_translate("MainWindow", "파일 첨부"))
@@ -644,8 +644,7 @@ class Ui_MainWindow(QMainWindow):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_5), _translate("MainWindow", "주문분석"))
         self.label_21.setText(_translate("MainWindow", "검색기간"))
         self.order_statistic.setText(_translate("MainWindow", "검색"))
-        # self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_6), _translate("MainWindow", "재고"))
-        # self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_7), _translate("MainWindow", "순수익"))
+
 
     @pyqtSlot(str)
     def threadEventHandler(self, n):
@@ -725,26 +724,26 @@ class Ui_MainWindow(QMainWindow):
         self.albam_file_list.pop(removeItemRow)
 
 
-    def saenggak_file(self):
+    def moa_file(self):
         fname = QFileDialog.getOpenFileNames(self)
         for f in fname[0]:
             self.listView.addItem(f)
-            self.saenggak_file_list.append(f)
+            self.moa_file_list.append(f)
 
-    def saenggak_removeCurrentItem(self) :
+    def moa_removeCurrentItem(self) :
         #ListWidget에서 현재 선택한 항목을 삭제할 때는 선택한 항목의 줄을 반환한 후, takeItem함수를 이용해 삭제합니다.
         removeItemRow = self.listView.currentRow()
         self.listView.takeItem(removeItemRow)
-        self.saenggak_file_list.pop(removeItemRow)
+        self.moa_file_list.pop(removeItemRow)
 
-    def saenggak_fin(self):
-        if len(self.saenggak_file_list) == 0:
+    def moa_fin(self):
+        if len(self.moa_file_list) == 0:
             x = QMessageBox()
             self.center()
             x.about(self, "경고", "파일을 첨부해주세요!")
             return
-        bool = concat(self.saenggak_file_list)
-        self.saenggak_file_list.clear()
+        bool = concat(self.moa_file_list)
+        self.moa_file_list.clear()
 
         self.listView.clear()
 

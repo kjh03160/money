@@ -79,7 +79,7 @@ def concat(files):
 
         for idx, row in new.iterrows():
             ba = row['최종매치'][0]
-            all_matches.loc[ba, '실제배달료'] = row['배달료']
+            all_matches.loc[ba, '실제배달료'] = row['배달료'] + 300
 
         not_baemin = all_matches.drop(index=list(baemin_index), axis=0)
         all_matches = all_matches.drop(['날짜'], axis=1)
