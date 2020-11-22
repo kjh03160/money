@@ -6,10 +6,10 @@ def now_waiting_main(driver, date, i):
         driver.get_url(login_url)
 
         id_box = driver.find_by_id("email")
-        id_box.send_keys("2753034@naver.com")
+        id_box.send_keys("")
 
         pw_box = driver.find_by_id("password")
-        pw_box.send_keys("@@a1s2d3f4\n")
+        pw_box.send_keys("")
     time.sleep(2)
 
     from nowdata_code.now_waiting import now_waiting
