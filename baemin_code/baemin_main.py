@@ -7,10 +7,10 @@ def baemin_main(driver, date, i):
         return print("요청이 너무 많아 차단되었습니다. 잠시 후 다시 시도해주세요")
     if i == 0:
         id = driver.find_by_id("id")
-        id.send_keys("sudaje1")
+        id.send_keys("")
 
         pw = driver.find_by_id("pw")
-        pw.send_keys("sujung4710!!")
+        pw.send_keys("!!")
 
         login = driver.find_by_id("btnLogin")
         driver.click(login)
